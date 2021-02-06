@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="jar" build-on-make="true" name="PoolSeat">
+    <output-path>G:/Minecrafts/插件开发文件</output-path>
+    <root id="archive" name="PoolSeat.jar">
+      <element id="module-output" name="PoolSeat" />
+    </root>
+  </artifact>
+</component>
