@@ -24,7 +24,7 @@ public class SqlConfig extends HikariConfig implements Cloneable {
      * @param connectParameter useSSL=false&autoReconnect=true&useUnicode=true&characterEncoding=UTF-8&zeroDateTimeBehavior=convertToNull
      */
     public SqlConfig(String databaseName, String userName, String password, String ip, String port, int poolSize, String connectParameter){
-        if("".equalsIgnoreCase(connectParameter)){
+        if(!"".equalsIgnoreCase(connectParameter)){
             databaseName += "?" +connectParameter;
         }
         this.setJdbcUrl("jdbc:mysql://" + ip + ":"
