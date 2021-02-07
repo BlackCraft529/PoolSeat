@@ -48,7 +48,6 @@ public class PoolSeat extends JavaPlugin {
                 //String databaseName, String userName, String password, String ip, String port, int poolSize, String connectParameter
                 SqlConfig sqlConfig = new SqlConfig("testDB","root","1515206","localhost","3306",5,"useSSL=false&autoReconnect=true&useUnicode=true&characterEncoding=UTF-8&zeroDateTimeBehavior=convertToNull");
                 SqlUtil sqlUtil = new SqlUtil(sqlConfig);
-
                 String sqlCmd = "select * from test_data;";
                 System.out.println(sqlUtil.selectData(sqlCmd,"com.bc.poolseat.domain.test.TestSqlBean"));
             }

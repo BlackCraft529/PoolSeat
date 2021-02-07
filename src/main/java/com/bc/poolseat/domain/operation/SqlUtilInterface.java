@@ -1,7 +1,6 @@
 package com.bc.poolseat.domain.operation;
 
 import org.bukkit.configuration.file.FileConfiguration;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -12,6 +11,27 @@ import java.util.List;
  * @date 2021/2/7 14:40
  */
 public interface SqlUtilInterface {
+
+    /**
+     * 从数据库查询玩家数据 - 名字
+     *
+     * @param cmd 指令
+     * @param nameColumnName uuid字段
+     * @param parameters 参数集
+     * @return 玩家 Player | OfflinePlayer
+     */
+    Object selectPlayerByName(String cmd , String nameColumnName , String... parameters);
+
+    /**
+     * 从数据库查询玩家数据 - uuid
+     *
+     * @param cmd 指令
+     * @param uuidColumnName uuid字段
+     * @param parameters 参数集
+     * @return 玩家 Player | OfflinePlayer
+     */
+    Object selectPlayerByUuid(String cmd , String uuidColumnName , String... parameters);
+
     /**
      * 查询数据并包装成类
      *
@@ -37,18 +57,18 @@ public interface SqlUtilInterface {
      *
      * @param cmd 指令
      * @param parameters 参数列表
-     * @param className 类型名
+     * @return 影响条数
      */
-    void updateData(String cmd , String className, String... parameters);
+    int updateData(String cmd , String... parameters);
 
     /**
      * 更新数据库信息
      *
      * @param cmd 指令
      * @param parameters 参数列表
-     * @param className 类型名
+     * @return 影响条数
      */
-    void updateData(String cmd , String className, List<String> parameters);
+    int updateData(String cmd , List<String> parameters);
 
     /**
      * 通过文件执行指令
@@ -84,8 +104,9 @@ public interface SqlUtilInterface {
      *
      * @param file 文件
      * @param cmdName 指令名
+     * @return 影响条数
      */
-    void updateData(FileConfiguration file , String cmdName);
+    int updateData(FileConfiguration file , String cmdName);
 
     /**
      * 通过文件更新数据（自带参数）
@@ -93,9 +114,9 @@ public interface SqlUtilInterface {
      * @param file 文件
      * @param cmdName 指令名
      * @param parameters 参数列表
-     * @return 实体类
+     * @return 影响条数
      */
-    Object updateData(FileConfiguration file , String cmdName , String... parameters);
+    int updateData(FileConfiguration file , String cmdName , String... parameters);
 
     /**
      * 通过文件更新数据（自带参数）
@@ -103,9 +124,9 @@ public interface SqlUtilInterface {
      * @param file 文件
      * @param cmdName 指令名
      * @param parameters 参数列表
-     * @return 实体类
+     * @return 影响条数
      */
-    Object updateData(FileConfiguration file , String cmdName , List<String> parameters);
+    int updateData(FileConfiguration file , String cmdName , List<String> parameters);
 
     /**
      * 释放资源

@@ -5,8 +5,12 @@ import com.bc.poolseat.domain.operation.SqlUtilInterface;
 import com.bc.poolseat.domain.operation.reflect.ReflectUtil;
 import com.bc.poolseat.domain.pool.PoolContainer;
 import com.bc.poolseat.initializer.impl.SqlInitializerX;
+import com.mysql.fabric.xmlrpc.base.Array;
 import lombok.Data;
+import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.entity.Player;
+
 import java.sql.*;
 import java.util.*;
 
@@ -38,6 +42,34 @@ public class SqlUtil implements SqlUtilInterface {
             e.printStackTrace();
         }
         return null;
+    }
+
+    /**
+     * 更新数据
+     *
+     * @param cmd 指令
+     * @return 影响条数
+     */
+    private int updateDataToMySql(String cmd , List<String> parameters){
+        Connection connection = getConnection();
+        if(connection == null){
+            return 0;
+        }
+        PreparedStatement preparedStatement = null;
+        try {
+            preparedStatement = connection.prepareStatement(cmd);
+            for (int i =1 ;i<parameters.size()+1;i++){
+                preparedStatement.setObject(i,parameters.get(i-1));
+            }
+            int influenceLine = preparedStatement.executeUpdate();
+            close(preparedStatement,connection);
+            return influenceLine;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return 0;
+        } finally {
+            close(preparedStatement,connection);
+        }
     }
 
     /**
@@ -82,7 +114,74 @@ public class SqlUtil implements SqlUtilInterface {
         }
     }
 
+    /**
+     * 通过列名获取 玩家
+     *
+     * @param cmd 指令
+     * @param columnName 列名
+     * @param parameters 参数集
+     * @return 获取内容
+     */
+    private String selectPlayerNameOrUUID(String cmd, String columnName ,List<String> parameters){
+        Connection connection = getConnection();
+        if(connection == null){
+            return "";
+        }
+        PreparedStatement preparedStatement = null;
+        ResultSet resultSet = null;
+        String result = "";
+        try {
+            preparedStatement = connection.prepareStatement(cmd);
+            for (int i = 1; i<parameters.size()+1;i++){
+                preparedStatement.setObject(i,parameters.get(i-1));
+            }
+            resultSet = preparedStatement.executeQuery();
+            while (resultSet.next()){
+                result = resultSet.getString(columnName);
+            }
+            close(resultSet,preparedStatement,connection);
+            return result;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            close(resultSet,preparedStatement,connection);
+        }
+        return result;
+    }
 
+    /**
+     * 从数据库查询玩家数据 - 名字
+     *
+     * @param cmd            指令
+     * @param nameColumnName uuid字段
+     * @param parameters 参数集
+     * @return 玩家 Player | OfflinePlayer
+     */
+    @Override
+    public Player selectPlayerByName(String cmd, String nameColumnName , String... parameters) {
+        return Bukkit.getPlayerExact(selectPlayerNameOrUUID(cmd,nameColumnName,Arrays.asList(parameters)));
+    }
+
+    /**
+     * 从数据库查询玩家数据 - uuid
+     *
+     * @param cmd            指令
+     * @param uuidColumnName uuid字段
+     * @param parameters 参数集
+     * @return 玩家 Player | OfflinePlayer
+     */
+    @Override
+    public Object selectPlayerByUuid(String cmd, String uuidColumnName , String... parameters) {
+        if("".equalsIgnoreCase(selectPlayerNameOrUUID(cmd,uuidColumnName,Arrays.asList(parameters)))){
+            UUID playerUUID = UUID.fromString(selectPlayerNameOrUUID(cmd,uuidColumnName,Arrays.asList(parameters)));
+            if(Bukkit.getPlayer(playerUUID) != null){
+                return Bukkit.getPlayer(playerUUID);
+            }else if (Bukkit.getOfflinePlayer(playerUUID) != null){
+                return Bukkit.getOfflinePlayer(playerUUID);
+            }
+        }
+        return null;
+    }
 
     /**
      * 查询数据并包装成类
@@ -115,24 +214,23 @@ public class SqlUtil implements SqlUtilInterface {
      * 更新数据库信息
      *
      * @param cmd        指令
-     * @param className  类型名
      * @param parameters 参数列表
      */
     @Override
-    public void updateData(String cmd, String className, String... parameters) {
-
+    public int updateData(String cmd, String... parameters) {
+        List<String> parameterList = Arrays.asList(parameters);
+        return updateDataToMySql(cmd , parameterList);
     }
 
     /**
      * 更新数据库信息
      *
      * @param cmd        指令
-     * @param className  类型名
      * @param parameters 参数列表
      */
     @Override
-    public void updateData(String cmd, String className, List<String> parameters) {
-
+    public int updateData(String cmd, List<String> parameters) {
+        return updateDataToMySql(cmd , parameters);
     }
 
     /**
@@ -144,7 +242,10 @@ public class SqlUtil implements SqlUtilInterface {
      */
     @Override
     public Object selectData(FileConfiguration file, String cmdName) {
-        return null;
+        String cmd = file.getString(cmdName+".cmd");
+        List<String> parameters = file.getStringList(cmdName+".parameters");
+        String className = file.getString(cmdName+".return");
+        return ReflectUtil.getObjectByResultList(getResultList(cmd,parameters),className);
     }
 
     /**
@@ -157,7 +258,10 @@ public class SqlUtil implements SqlUtilInterface {
      */
     @Override
     public Object selectData(FileConfiguration file, String cmdName, String... parameters) {
-        return null;
+        String cmd = file.getString(cmdName+".cmd");
+        List<String> parameterList = Arrays.asList(parameters);
+        String className = file.getString(cmdName+".return");
+        return ReflectUtil.getObjectByResultList(getResultList(cmd,parameterList),className);
     }
 
     /**
@@ -170,7 +274,9 @@ public class SqlUtil implements SqlUtilInterface {
      */
     @Override
     public Object selectData(FileConfiguration file, String cmdName, List<String> parameters) {
-        return null;
+        String cmd = file.getString(cmdName+".cmd");
+        String className = file.getString(cmdName+".return");
+        return ReflectUtil.getObjectByResultList(getResultList(cmd,parameters),className);
     }
 
     /**
@@ -180,8 +286,10 @@ public class SqlUtil implements SqlUtilInterface {
      * @param cmdName 指令名
      */
     @Override
-    public void updateData(FileConfiguration file, String cmdName) {
-
+    public int updateData(FileConfiguration file, String cmdName) {
+        String cmd = file.getString(cmdName+".cmd");
+        List<String> parameters = file.getStringList(cmdName+".parameters");
+        return updateDataToMySql(cmd , parameters);
     }
 
     /**
@@ -193,8 +301,10 @@ public class SqlUtil implements SqlUtilInterface {
      * @return 实体类
      */
     @Override
-    public Object updateData(FileConfiguration file, String cmdName, String... parameters) {
-        return null;
+    public int updateData(FileConfiguration file, String cmdName, String... parameters) {
+        String cmd = file.getString(cmdName+".cmd");
+        List<String> parameterList = Arrays.asList(parameters);
+        return updateDataToMySql(cmd , parameterList);
     }
 
     /**
@@ -206,8 +316,9 @@ public class SqlUtil implements SqlUtilInterface {
      * @return 实体类
      */
     @Override
-    public Object updateData(FileConfiguration file, String cmdName, List<String> parameters) {
-        return null;
+    public int updateData(FileConfiguration file, String cmdName, List<String> parameters) {
+        String cmd = file.getString(cmdName+".cmd");
+        return updateDataToMySql(cmd , parameters);
     }
 
     /**
