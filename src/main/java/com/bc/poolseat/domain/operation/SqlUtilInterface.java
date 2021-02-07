@@ -1,6 +1,7 @@
 package com.bc.poolseat.domain.operation;
 
 import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.entity.Player;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -11,6 +12,35 @@ import java.util.List;
  * @date 2021/2/7 14:40
  */
 public interface SqlUtilInterface {
+
+    /**
+     * 从数据库查询玩家数据 - 名字
+     *
+     * @param cmd            指令
+     * @param nameColumnName uuid字段
+     * @param parameters 参数集
+     * @return 玩家 Player | OfflinePlayer
+     */
+    Player selectPlayerByName(String cmd, String nameColumnName , List<String> parameters);
+
+    /**
+     * 从数据库查询玩家数据 - uuid
+     *
+     * @param cmd            指令
+     * @param uuidColumnName uuid字段
+     * @param parameters 参数集
+     * @return 玩家 Player | OfflinePlayer
+     */
+    Object selectPlayerByUuid(String cmd, String uuidColumnName , List<String> parameters);
+
+    /**
+     * 从文件获取玩家
+     *
+     * @param file 文件
+     * @param cmdName 指令集
+     * @return 玩家 Player | OfflinePlayer
+     */
+    Object selectPlayerFromYml(FileConfiguration file , String cmdName);
 
     /**
      * 从数据库查询玩家数据 - 名字

@@ -1,16 +1,15 @@
 package com.bc.poolseat.domain.operation.impl;
 
+import com.bc.poolseat.PoolSeat;
 import com.bc.poolseat.domain.config.SqlConfig;
 import com.bc.poolseat.domain.operation.SqlUtilInterface;
 import com.bc.poolseat.domain.operation.reflect.ReflectUtil;
 import com.bc.poolseat.domain.pool.PoolContainer;
 import com.bc.poolseat.initializer.impl.SqlInitializerX;
-import com.mysql.fabric.xmlrpc.base.Array;
 import lombok.Data;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
-
 import java.sql.*;
 import java.util.*;
 
@@ -150,6 +149,43 @@ public class SqlUtil implements SqlUtilInterface {
     }
 
     /**
+     * 从文件获取玩家
+     *
+     * @param file    文件
+     * @param cmdName 指令集
+     * @return 玩家 Player | OfflinePlayer
+     */
+    @Override
+    public Object selectPlayerFromYml(FileConfiguration file, String cmdName) {
+        if(file.get(cmdName) == null || "Player".equalsIgnoreCase(file.getString(cmdName+".return"))){
+            PoolSeat.logMessage("§4路径地址错误或返回类型错误,该方法仅适用Player类型!");
+            return null;
+        }
+        String type = file.getString(cmdName+".type");
+        String cmd = file.getString(cmdName+".cmd");
+        String columnName = file.getString(cmdName+".column");
+        List<String> parameterList = file.getStringList(cmdName+".parameters");
+        if("uuid".equalsIgnoreCase(type)){
+            return selectPlayerByUuid(cmd, columnName, parameterList);
+        }else {
+            return selectPlayerByName(cmd, columnName, parameterList);
+        }
+    }
+
+    /**
+     * 从数据库查询玩家数据 - 名字
+     *
+     * @param cmd            指令
+     * @param nameColumnName uuid字段
+     * @param parameters 参数集
+     * @return 玩家 Player | OfflinePlayer
+     */
+    @Override
+    public Player selectPlayerByName(String cmd, String nameColumnName , List<String> parameters) {
+        return Bukkit.getPlayerExact(selectPlayerNameOrUUID(cmd,nameColumnName,parameters));
+    }
+
+    /**
      * 从数据库查询玩家数据 - 名字
      *
      * @param cmd            指令
@@ -160,6 +196,27 @@ public class SqlUtil implements SqlUtilInterface {
     @Override
     public Player selectPlayerByName(String cmd, String nameColumnName , String... parameters) {
         return Bukkit.getPlayerExact(selectPlayerNameOrUUID(cmd,nameColumnName,Arrays.asList(parameters)));
+    }
+
+    /**
+     * 从数据库查询玩家数据 - uuid
+     *
+     * @param cmd            指令
+     * @param uuidColumnName uuid字段
+     * @param parameters 参数集
+     * @return 玩家 Player | OfflinePlayer
+     */
+    @Override
+    public Object selectPlayerByUuid(String cmd, String uuidColumnName , List<String> parameters) {
+        if("".equalsIgnoreCase(selectPlayerNameOrUUID(cmd,uuidColumnName,parameters))){
+            UUID playerUUID = UUID.fromString(selectPlayerNameOrUUID(cmd,uuidColumnName,parameters));
+            if(Bukkit.getPlayer(playerUUID) != null){
+                return Bukkit.getPlayer(playerUUID);
+            }else if (Bukkit.getOfflinePlayer(playerUUID) != null){
+                return Bukkit.getOfflinePlayer(playerUUID);
+            }
+        }
+        return null;
     }
 
     /**
@@ -242,6 +299,10 @@ public class SqlUtil implements SqlUtilInterface {
      */
     @Override
     public Object selectData(FileConfiguration file, String cmdName) {
+        if(file.get(cmdName) == null){
+            PoolSeat.logMessage("§4路径地址错误!");
+            return null;
+        }
         String cmd = file.getString(cmdName+".cmd");
         List<String> parameters = file.getStringList(cmdName+".parameters");
         String className = file.getString(cmdName+".return");
@@ -258,6 +319,10 @@ public class SqlUtil implements SqlUtilInterface {
      */
     @Override
     public Object selectData(FileConfiguration file, String cmdName, String... parameters) {
+        if(file.get(cmdName) == null){
+            PoolSeat.logMessage("§4路径地址错误!");
+            return null;
+        }
         String cmd = file.getString(cmdName+".cmd");
         List<String> parameterList = Arrays.asList(parameters);
         String className = file.getString(cmdName+".return");
@@ -274,6 +339,10 @@ public class SqlUtil implements SqlUtilInterface {
      */
     @Override
     public Object selectData(FileConfiguration file, String cmdName, List<String> parameters) {
+        if(file.get(cmdName) == null){
+            PoolSeat.logMessage("§4路径地址错误!");
+            return null;
+        }
         String cmd = file.getString(cmdName+".cmd");
         String className = file.getString(cmdName+".return");
         return ReflectUtil.getObjectByResultList(getResultList(cmd,parameters),className);
@@ -287,6 +356,10 @@ public class SqlUtil implements SqlUtilInterface {
      */
     @Override
     public int updateData(FileConfiguration file, String cmdName) {
+        if(file.get(cmdName) == null){
+            PoolSeat.logMessage("§4路径地址错误!");
+            return 0;
+        }
         String cmd = file.getString(cmdName+".cmd");
         List<String> parameters = file.getStringList(cmdName+".parameters");
         return updateDataToMySql(cmd , parameters);
@@ -302,6 +375,10 @@ public class SqlUtil implements SqlUtilInterface {
      */
     @Override
     public int updateData(FileConfiguration file, String cmdName, String... parameters) {
+        if(file.get(cmdName) == null){
+            PoolSeat.logMessage("§4路径地址错误!");
+            return 0;
+        }
         String cmd = file.getString(cmdName+".cmd");
         List<String> parameterList = Arrays.asList(parameters);
         return updateDataToMySql(cmd , parameterList);
@@ -317,6 +394,10 @@ public class SqlUtil implements SqlUtilInterface {
      */
     @Override
     public int updateData(FileConfiguration file, String cmdName, List<String> parameters) {
+        if(file.get(cmdName) == null){
+            PoolSeat.logMessage("§4路径地址错误!");
+            return 0;
+        }
         String cmd = file.getString(cmdName+".cmd");
         return updateDataToMySql(cmd , parameters);
     }

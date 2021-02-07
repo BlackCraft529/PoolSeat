@@ -1,5 +1,7 @@
 package com.bc.poolseat.domain.operation.reflect;
 
+import com.bc.poolseat.PoolSeat;
+
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
@@ -40,6 +42,7 @@ public class ReflectUtil {
             }
             return objectList;
         } catch (ClassNotFoundException | IllegalAccessException | InstantiationException | NoSuchFieldException e) {
+            PoolSeat.logMessage("§4请确认类名正确,如 String 应为 java.lang.String!");
             e.printStackTrace();
         }
         return null;
