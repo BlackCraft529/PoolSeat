@@ -3,3 +3,5 @@ main: com.bc.poolseat.PoolSeat
 version: 1.0.3
 author: SCT.Luckily_Baby
 description: "PoolSeat (MC版本1.7 - 1.16)"
+commands:
+  poolseat:

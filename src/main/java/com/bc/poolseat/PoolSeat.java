@@ -1,6 +1,7 @@
 package com.bc.poolseat;
 
 import org.bukkit.Bukkit;
+import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -27,5 +28,24 @@ public class PoolSeat extends JavaPlugin {
         logMessage("§aPoolSeat连接池前置开始初始化...");
         logMessage("§aVersion: "+version);
         logMessage("§aPoolSeat连接池初始化完毕!");
+    }
+
+    /**
+     * 测试插件功能
+     *
+     * @param sender 玩家
+     * @param cmd 指令
+     * @param label label
+     * @param args 参数
+     * @return 是否成功
+     */
+    @Override
+    public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
+        if("poolseat".equalsIgnoreCase(cmd.getName())){
+            if(args.length == 1 && "test".equalsIgnoreCase(args[0])){
+
+            }
+        }
+        return true;
     }
 }

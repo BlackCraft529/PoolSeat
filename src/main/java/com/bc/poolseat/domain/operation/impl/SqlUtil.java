@@ -1,8 +1,10 @@
 package com.bc.poolseat.domain.operation.impl;
 
+import com.bc.poolseat.domain.config.SqlConfig;
 import com.bc.poolseat.domain.operation.SqlUtilInterface;
 import com.bc.poolseat.domain.operation.reflect.ReflectUtil;
 import com.bc.poolseat.domain.pool.PoolContainer;
+import com.bc.poolseat.initializer.impl.SqlInitializerX;
 import lombok.Data;
 import org.bukkit.configuration.file.FileConfiguration;
 import java.sql.*;
@@ -18,8 +20,8 @@ public class SqlUtil implements SqlUtilInterface {
 
     private PoolContainer poolContainer;
 
-    public SqlUtil(PoolContainer poolContainer){
-        this.poolContainer = poolContainer;
+    public SqlUtil(SqlConfig sqlConfig){
+        this.poolContainer = new SqlInitializerX().initPoolContainer(sqlConfig);
     }
 
     /**
