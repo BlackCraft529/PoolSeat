@@ -14,7 +14,7 @@
                 <artifactId>maven-assembly-plugin</artifactId>
                 <configuration>
                     <finalName>PoolSeat</finalName>
-                    <outputDirectory>G:\Minecrafts\插件开发文件</outputDirectory>
+                    <outputDirectory>G:\Minecrafts\WaterFall群组\poke1\plugins</outputDirectory>
                     <descriptorRefs>
                         <descriptorRef>jar-with-dependencies</descriptorRef>
                     </descriptorRefs>

@@ -18,7 +18,7 @@ public class ReflectUtil {
      * @return 实体
      */
     public static List<Object> getObjectByResultList(List<Map<String , Object>> resultList , String className){
-        if(resultList == null || resultList.size() <= 0){
+        if(resultList == null ){
             return null;
         }
         try {
