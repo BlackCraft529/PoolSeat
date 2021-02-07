@@ -1,6 +1,7 @@
 package com.bc.poolseat.domain.operation.impl;
 
 import com.bc.poolseat.PoolSeat;
+import com.bc.poolseat.data.PluginPoolData;
 import com.bc.poolseat.domain.config.SqlConfig;
 import com.bc.poolseat.domain.operation.SqlUtilInterface;
 import com.bc.poolseat.domain.operation.reflect.ReflectUtil;
@@ -10,6 +11,7 @@ import lombok.Data;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
+import org.bukkit.plugin.java.JavaPlugin;
 import java.sql.*;
 import java.util.*;
 
@@ -23,16 +25,24 @@ public class SqlUtil implements SqlUtilInterface {
 
     private PoolContainer poolContainer;
 
-    public SqlUtil(SqlConfig sqlConfig){
+    /**
+     * 根据配置初始化信息
+     *
+     * @param plugin 插件
+     * @param sqlConfig 配置信息
+     */
+    public SqlUtil(JavaPlugin plugin , SqlConfig sqlConfig){
         this.poolContainer = new SqlInitializerX().initPoolContainer(sqlConfig);
+        PluginPoolData.setPluginPoolData(plugin.getName(),sqlConfig.clone());
     }
 
     /**
      * 根据文件初始化数据库
      *
      * @param file 文件
+     * @param plugin 插件
      */
-    public SqlUtil(FileConfiguration file){
+    public SqlUtil(JavaPlugin plugin , FileConfiguration file){
         String databaseName = file.getString("MySql.DatabaseName");
         String userName = file.getString("MySql.UserName");
         String password = file.getString("MySql.Password");
@@ -40,7 +50,9 @@ public class SqlUtil implements SqlUtilInterface {
         String ip = file.getString("MySql.Ip");
         int poolSize = file.getInt("MySql.PoolSize");
         String connectParameter = file.getString("MySql.ConnectParameter");
-        this.poolContainer = new SqlInitializerX().initPoolContainer(new SqlConfig(databaseName,userName,password,ip,port,poolSize,connectParameter));
+        SqlConfig sqlConfig = new SqlConfig(databaseName,userName,password,ip,port,poolSize,connectParameter);
+        this.poolContainer = new SqlInitializerX().initPoolContainer(sqlConfig);
+        PluginPoolData.setPluginPoolData(plugin.getName(),sqlConfig.clone());
     }
 
     /**

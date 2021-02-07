@@ -3,7 +3,6 @@ package com.bc.poolseat.yml.config;
 import com.bc.poolseat.PoolSeat;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
-
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;

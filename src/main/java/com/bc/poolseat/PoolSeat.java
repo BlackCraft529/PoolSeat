@@ -1,5 +1,6 @@
 package com.bc.poolseat;
 
+import com.bc.poolseat.data.PluginPoolData;
 import com.bc.poolseat.domain.config.SqlConfig;
 import com.bc.poolseat.domain.operation.impl.SqlUtil;
 import org.bukkit.Bukkit;
@@ -50,10 +51,13 @@ public class PoolSeat extends JavaPlugin {
             if(args.length == 1 && "test".equalsIgnoreCase(args[0])){
                 //String databaseName, String userName, String password, String ip, String port, int poolSize, String connectParameter
                 SqlConfig sqlConfig = new SqlConfig("testDB","root","1515206","localhost","3306",5,"useSSL=false&autoReconnect=true&useUnicode=true&characterEncoding=UTF-8&zeroDateTimeBehavior=convertToNull");
-                SqlUtil sqlUtil = new SqlUtil(sqlConfig);
+                SqlUtil sqlUtil = new SqlUtil(this,sqlConfig);
                 String sqlCmd = "select * from test_data;";
                 System.out.println(sqlUtil.selectData(sqlCmd,"com.bc.poolseat.domain.test.TestSqlBean"));
             } else if (args.length == 1 && "reload".equalsIgnoreCase(args[0])){
+                for (String pluginName : PluginPoolData.getAllPluginPoolData().keySet()){
+                    logger.sendMessage("\n§a插件:[§e"+pluginName+"§a]信息:\n§b"+PluginPoolData.getAllPluginPoolData().get(pluginName).toString());
+                }
                 logMessage("§a§l重载完成!");
             }
         }

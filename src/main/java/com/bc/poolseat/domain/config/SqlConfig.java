@@ -39,13 +39,21 @@ public class SqlConfig extends HikariConfig implements Cloneable {
         this.setAutoCommit(true);
     }
 
+    @Override
+    public String toString(){
+        return "用户名:"+ this.getUsername() +"\n"+
+                "密码:"+ this.getPassword() +"\n"+
+                "连接池大小:"+ this.getMaximumPoolSize() +"\n"+
+                "URL:"+ this.getJdbcUrl();
+    }
+
     /**
      * 克隆配置
      *
      * @return 配置
      */
     @Override
-    public Object clone() {
+    public SqlConfig clone() {
         SqlConfig sqlConfig = null;
         try{
             sqlConfig = (SqlConfig)super.clone();
@@ -54,6 +62,8 @@ public class SqlConfig extends HikariConfig implements Cloneable {
         }
         return sqlConfig;
     }
+
+
 
     public SqlConfig(){}
 }
