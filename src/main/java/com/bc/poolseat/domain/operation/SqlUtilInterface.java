@@ -14,6 +14,16 @@ import java.util.List;
 public interface SqlUtilInterface {
 
     /**
+     * 使用实体类进行数据更新
+     *
+     * @param pluginName 插件名称
+     * @param javaBean 实体类
+     * @param primaryKey 主键名称
+     * @return 影响条数
+     */
+    int updateDataFromBean(String pluginName , Object javaBean , String primaryKey);
+
+    /**
      * 从数据库查询玩家数据 - 名字
      *
      * @param cmd            指令

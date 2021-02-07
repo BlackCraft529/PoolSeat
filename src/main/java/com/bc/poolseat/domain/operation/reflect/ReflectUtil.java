@@ -1,7 +1,6 @@
 package com.bc.poolseat.domain.operation.reflect;
 
 import com.bc.poolseat.PoolSeat;
-
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;

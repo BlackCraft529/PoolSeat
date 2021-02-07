@@ -1,6 +1,5 @@
 package com.bc.poolseat.initializer;
 
-
 import com.bc.poolseat.domain.config.SqlConfig;
 import com.bc.poolseat.domain.pool.PoolContainer;
 

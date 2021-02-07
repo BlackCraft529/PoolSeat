@@ -1,0 +1,9 @@
+PoolSeat:
+  beanName:
+    path: com.bc.poolseat.domain.test.TestSqlBean
+    table: test_data
+    reflectMap:
+      - 'column:name<->bean:name<->type:string'
+      - 'column:data<->bean:data<->type:int'
+      - 'column:lists<->bean:lists<->type:list'
+      - 'column:maps<->bean:maps<->type:map'

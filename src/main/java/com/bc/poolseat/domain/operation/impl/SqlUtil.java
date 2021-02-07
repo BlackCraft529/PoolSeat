@@ -28,6 +28,22 @@ public class SqlUtil implements SqlUtilInterface {
     }
 
     /**
+     * 根据文件初始化数据库
+     *
+     * @param file 文件
+     */
+    public SqlUtil(FileConfiguration file){
+        String databaseName = file.getString("MySql.DatabaseName");
+        String userName = file.getString("MySql.UserName");
+        String password = file.getString("MySql.Password");
+        String port = file.getString("MySql.Port");
+        String ip = file.getString("MySql.Ip");
+        int poolSize = file.getInt("MySql.PoolSize");
+        String connectParameter = file.getString("MySql.ConnectParameter");
+        this.poolContainer = new SqlInitializerX().initPoolContainer(new SqlConfig(databaseName,userName,password,ip,port,poolSize,connectParameter));
+    }
+
+    /**
      * 获取连接
      *
      * @return 连接
@@ -170,6 +186,20 @@ public class SqlUtil implements SqlUtilInterface {
         }else {
             return selectPlayerByName(cmd, columnName, parameterList);
         }
+    }
+
+    /**
+     * 使用实体类进行数据更新
+     *
+     * @param pluginName 插件名称
+     * @param javaBean   实体类
+     * @param primaryKey 主键名称
+     * @return 影响条数
+     */
+    @Override
+    public int updateDataFromBean(String pluginName, Object javaBean, String primaryKey) {
+        //do something
+        return 0;
     }
 
     /**
