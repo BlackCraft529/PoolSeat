@@ -19,7 +19,7 @@ public class PoolSeat extends JavaPlugin {
 
     private static PoolSeat plugin;
     private static CommandSender logger;
-    private static final String version = "1.0-SNAPSHOT", pluginTitle = "§a[§ePoolSeat§a]";
+    private static final String version = "1.0.6-SNAPSHOT", pluginTitle = "§a[§ePoolSeat§a]";
 
     public static PoolSeat getPlugin(){return plugin;}
     public static void logMessage(String msg){logger.sendMessage(pluginTitle+msg);}
@@ -55,10 +55,12 @@ public class PoolSeat extends JavaPlugin {
                 String sqlCmd = "select * from test_data;";
                 System.out.println(sqlUtil.selectData(sqlCmd,"com.bc.poolseat.domain.test.TestSqlBean"));
             } else if (args.length == 1 && "reload".equalsIgnoreCase(args[0])){
+
+                logMessage("§a§l重载完成!");
+            } else if (args.length == 1 && "info".equalsIgnoreCase(args[0])){
                 for (String pluginName : PluginPoolData.getAllPluginPoolData().keySet()){
                     logger.sendMessage("\n§a插件:[§e"+pluginName+"§a]信息:\n§b"+PluginPoolData.getAllPluginPoolData().get(pluginName).toString());
                 }
-                logMessage("§a§l重载完成!");
             }
         }
         return true;
