@@ -112,7 +112,7 @@ SqlUtil sqlUtil = new SqlUtil(sqlConfig);
   ```java
   sqlUtil.selectData(SqlConfigUtil.getSqlConfig(),"selectAllGlobalPlayer");
   //如何使用获取的数据呢?一般来说进行遍历,或者直接get数据即可;
-  for (Object globalPlayer: PokeRankPro.sqlUtil.selectData(SqlConfigUtil.getSqlConfig(),"selectAllGlobalPlayer")){
+  for (Object globalPlayer: sqlUtil.selectData(SqlConfigUtil.getSqlConfig(),"selectAllGlobalPlayer")){
     System.out.println(globalPlayer.toString());
   }
   ```
