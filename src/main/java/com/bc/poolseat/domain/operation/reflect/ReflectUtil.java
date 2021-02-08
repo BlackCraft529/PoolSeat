@@ -26,7 +26,6 @@ public class ReflectUtil {
         try {
             String beanName = className.split("\\.")[className.split("\\.").length-1];
             if(reflectMap.get(beanName) == null){
-                System.out.println("错误1："+beanName);
                 return null;
             }
             ReflectMap reflectMapGot = reflectMap.get(beanName);
@@ -39,7 +38,6 @@ public class ReflectUtil {
                     //获取相应的java bean字段名
                     String beanFieldName = reflectMapGot.getResultMap().get(key);
                     if(beanFieldName == null){
-                        System.out.println("错误2："+beanFieldName+" : "+key);
                         continue;
                     }
                     try {
