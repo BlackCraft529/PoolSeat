@@ -1,4 +1,4 @@
-package com.bc.poolseat.domain.operation.reflect;
+package com.bc.poolseat.utils.reflect;
 
 import com.bc.poolseat.PoolSeat;
 import com.bc.poolseat.domain.result.ReflectMap;

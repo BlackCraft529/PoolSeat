@@ -10,8 +10,7 @@ import org.bukkit.plugin.java.JavaPlugin;
  * @author Luckily_Baby
  * @date 2021/2/6 16:12
  * @TODO
- *  使用javaBean更新相关表数据
- *  将所有map表映射为实体类的字段（类型）
+ *  测试所有方法
  */
 public class PoolSeat extends JavaPlugin {
 
@@ -47,7 +46,7 @@ public class PoolSeat extends JavaPlugin {
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
         if("poolseat".equalsIgnoreCase(cmd.getName())){
             if (args.length == 1 && "reload".equalsIgnoreCase(args[0])){
-
+                //do something
                 logMessage("§a§l重载完成!");
             } else if (args.length == 1 && "info".equalsIgnoreCase(args[0])){
                 for (String pluginName : PluginPoolData.getAllPluginPoolData().keySet()){

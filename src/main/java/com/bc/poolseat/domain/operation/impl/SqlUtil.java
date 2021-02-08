@@ -4,7 +4,7 @@ import com.bc.poolseat.PoolSeat;
 import com.bc.poolseat.data.PluginPoolData;
 import com.bc.poolseat.domain.config.SqlConfig;
 import com.bc.poolseat.domain.operation.SqlUtilInterface;
-import com.bc.poolseat.domain.operation.reflect.ReflectUtil;
+import com.bc.poolseat.utils.reflect.ReflectUtil;
 import com.bc.poolseat.domain.pool.PoolContainer;
 import com.bc.poolseat.domain.result.ReflectMap;
 import com.bc.poolseat.initializer.impl.SqlInitializerX;
