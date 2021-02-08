@@ -1,4 +1,4 @@
-package com.bc.poolseat.yml.config;
+package com.bc.poolseat.utils.yml.config;
 
 import com.bc.poolseat.PoolSeat;
 import org.bukkit.configuration.file.FileConfiguration;
