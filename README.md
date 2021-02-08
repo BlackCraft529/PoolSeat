@@ -42,17 +42,17 @@
   * 方法文件,格式如下
   >操作名(自取,唯一):<br>
   >>cmd: "数据库语句,如select * from player where uuid=?;"<br>
+  >>return: 返回类型(暂无较大用处)<br>
   >>parameters:<br>
   >>>\- '参数,对齐语句中的?号,此处对应uuid后的?号'<br>
-  >>return: 返回类型(暂无较大用处)<br>
   * 如果想要将某个字段转换成Bukkit的Player/OfflinePlayer:<br>
   >操作名(自取,唯一):<br>
   >>cmd: "数据库语句,如select * from player where uuid=?;"<br>
   >>column: "数据库中用于转换的字段名,例如uuid"<br>
   >>type: "UUID/NAME(是名称转换或者是UUID转换)"<br>
+  >>return: "Player"(此处必填Player,否则无法正常获取)<br>
   >>parameters:<br>
   >>>\- '参数,对齐语句中的?号,此处对应uuid后的?号'<br>
-  >>return: "Player"(此处必填Player,否则无法正常获取)<br>
   * 如果想使用JavaBean更新数据库:<br>
   >updateGlobalPlayer:<br>
   >>#此处变量对应为 数据库字段名 ,非 类字段名<br>
