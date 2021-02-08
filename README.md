@@ -21,7 +21,7 @@
     >>path: 类的路径<br>
     >>table: 所对应的数据库表<br>
     >>reflectMap:<br>
-    >>>- 'column:数据库字段名<->bean:类字段名'<br>
+    >>>\- 'column:数据库字段名<->bean:类字段名'<br>
     * 例如:<br>
     ```yaml
     GlobalPlayer:
@@ -43,7 +43,7 @@
   >操作名(自取,唯一):<br>
   >>cmd: "数据库语句,如select * from player where uuid=?;"<br>
   >>parameters:<br>
-  >>>- '参数,对齐语句中的?号,此处对应uuid后的?号'<br>
+  >>>\- '参数,对齐语句中的?号,此处对应uuid后的?号'<br>
   >>return: 返回类型(暂无较大用处)<br>
   * 如果想要将某个字段转换成Bukkit的Player/OfflinePlayer:<br>
   >操作名(自取,唯一):<br>
@@ -51,7 +51,7 @@
   >>column: "数据库中用于转换的字段名,例如uuid"<br>
   >>type: "UUID/NAME(是名称转换或者是UUID转换)"<br>
   >>parameters:<br>
-  >>>- '参数,对齐语句中的?号,此处对应uuid后的?号'<br>
+  >>>\- '参数,对齐语句中的?号,此处对应uuid后的?号'<br>
   >>return: "Player"(此处必填Player,否则无法正常获取)<br>
   * 如果想使用JavaBean更新数据库:<br>
   >updateGlobalPlayer:<br>
