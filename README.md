@@ -111,6 +111,10 @@ SqlUtil sqlUtil = new SqlUtil(sqlConfig);
   * 1.使用yml:<br>
   ```java
   sqlUtil.selectData(SqlConfigUtil.getSqlConfig(),"selectAllGlobalPlayer");
+  //如何使用获取的数据呢?一般来说进行遍历,或者直接get数据即可;
+  for (Object globalPlayer: PokeRankPro.sqlUtil.selectData(SqlConfigUtil.getSqlConfig(),"selectAllGlobalPlayer")){
+    System.out.println(globalPlayer.toString());
+  }
   ```
   * 2.使用语句并带入参数:<br>
   ```java
