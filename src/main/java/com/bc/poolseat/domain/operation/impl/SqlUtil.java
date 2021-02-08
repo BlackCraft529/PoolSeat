@@ -6,6 +6,7 @@ import com.bc.poolseat.domain.config.SqlConfig;
 import com.bc.poolseat.domain.operation.SqlUtilInterface;
 import com.bc.poolseat.domain.operation.reflect.ReflectUtil;
 import com.bc.poolseat.domain.pool.PoolContainer;
+import com.bc.poolseat.domain.result.ReflectMap;
 import com.bc.poolseat.initializer.impl.SqlInitializerX;
 import lombok.Data;
 import org.bukkit.Bukkit;
@@ -22,6 +23,10 @@ import java.util.*;
  */
 @Data
 public class SqlUtil implements SqlUtilInterface {
+    /**
+     * 类型名 : 映射表
+     */
+    private Map<String, ReflectMap> reflectMap = Collections.synchronizedMap(new HashMap<String, ReflectMap>());
 
     private PoolContainer poolContainer;
 
@@ -34,6 +39,31 @@ public class SqlUtil implements SqlUtilInterface {
     public SqlUtil(JavaPlugin plugin , SqlConfig sqlConfig){
         this.poolContainer = new SqlInitializerX().initPoolContainer(sqlConfig);
         PluginPoolData.setPluginPoolData(plugin.getName(),sqlConfig.clone());
+    }
+
+    /**
+     * 根据文件映射字段
+     *
+     * @param file 文件
+     * @return 初始化信息值
+     */
+    public int initResultMap(FileConfiguration file){
+        this.reflectMap.clear();
+        for (String beanName : file.getKeys(false)){
+            // (table字段 : bean字段)
+            Map<String,String> resultMap = Collections.synchronizedMap(new HashMap<String, String>());
+            for (String line : file.getStringList(beanName+".reflectMap")){
+                String columnName = line.split("<->")[0].split(":")[1];
+                String javaBeanName = line.split("<->")[1].split(":")[1];
+                resultMap.put(columnName,javaBeanName);
+            }
+            String beanPath = file.getString(beanName+".path");
+            String tableName = file.getString(beanName+".table");
+            //String beanName , String beanPath , String tableName , Map<String,String> resultMap
+            ReflectMap reflectMap = new ReflectMap(beanName, beanPath, tableName, resultMap);
+            this.reflectMap.put(beanName , reflectMap);
+        }
+        return reflectMap.size();
     }
 
     /**
@@ -291,9 +321,9 @@ public class SqlUtil implements SqlUtilInterface {
      * @return 实体类
      */
     @Override
-    public Object selectData(String cmd, String className, String... parameters) {
+    public List<Object> selectData(String cmd, String className, String... parameters) {
         List<String> parameterList = Arrays.asList(parameters);
-        return ReflectUtil.getObjectByResultList(getResultList(cmd,parameterList),className);
+        return ReflectUtil.getObjectByResultList(getResultList(cmd,parameterList),className,this.reflectMap);
     }
 
     /**
@@ -305,8 +335,8 @@ public class SqlUtil implements SqlUtilInterface {
      * @return 实体类
      */
     @Override
-    public Object selectData(String cmd, String className, List<String> parameters) {
-        return ReflectUtil.getObjectByResultList(getResultList(cmd,parameters),className);
+    public List<Object> selectData(String cmd, String className, List<String> parameters) {
+        return ReflectUtil.getObjectByResultList(getResultList(cmd,parameters),className,this.reflectMap);
     }
 
     /**
@@ -340,7 +370,7 @@ public class SqlUtil implements SqlUtilInterface {
      * @return 实体类
      */
     @Override
-    public Object selectData(FileConfiguration file, String cmdName) {
+    public List<Object> selectData(FileConfiguration file, String cmdName) {
         if(file.get(cmdName) == null){
             PoolSeat.logMessage("§4路径地址错误!");
             return null;
@@ -348,7 +378,7 @@ public class SqlUtil implements SqlUtilInterface {
         String cmd = file.getString(cmdName+".cmd");
         List<String> parameters = file.getStringList(cmdName+".parameters");
         String className = file.getString(cmdName+".return");
-        return ReflectUtil.getObjectByResultList(getResultList(cmd,parameters),className);
+        return ReflectUtil.getObjectByResultList(getResultList(cmd,parameters),className,this.reflectMap);
     }
 
     /**
@@ -360,7 +390,7 @@ public class SqlUtil implements SqlUtilInterface {
      * @return 实体类
      */
     @Override
-    public Object selectData(FileConfiguration file, String cmdName, String... parameters) {
+    public List<Object> selectData(FileConfiguration file, String cmdName, String... parameters) {
         if(file.get(cmdName) == null){
             PoolSeat.logMessage("§4路径地址错误!");
             return null;
@@ -368,7 +398,7 @@ public class SqlUtil implements SqlUtilInterface {
         String cmd = file.getString(cmdName+".cmd");
         List<String> parameterList = Arrays.asList(parameters);
         String className = file.getString(cmdName+".return");
-        return ReflectUtil.getObjectByResultList(getResultList(cmd,parameterList),className);
+        return ReflectUtil.getObjectByResultList(getResultList(cmd,parameterList),className,this.reflectMap);
     }
 
     /**
@@ -380,14 +410,14 @@ public class SqlUtil implements SqlUtilInterface {
      * @return 实体类
      */
     @Override
-    public Object selectData(FileConfiguration file, String cmdName, List<String> parameters) {
+    public List<Object> selectData(FileConfiguration file, String cmdName, List<String> parameters) {
         if(file.get(cmdName) == null){
             PoolSeat.logMessage("§4路径地址错误!");
             return null;
         }
         String cmd = file.getString(cmdName+".cmd");
         String className = file.getString(cmdName+".return");
-        return ReflectUtil.getObjectByResultList(getResultList(cmd,parameters),className);
+        return ReflectUtil.getObjectByResultList(getResultList(cmd,parameters),className,this.reflectMap);
     }
 
     /**

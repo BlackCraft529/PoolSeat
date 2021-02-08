@@ -80,7 +80,7 @@ public interface SqlUtilInterface {
      * @param className 类型名
      * @return 实体类
      */
-    Object selectData(String cmd , String className , String... parameters );
+    List<Object> selectData(String cmd , String className , String... parameters );
 
     /**
      * 查询数据并包装成类
@@ -90,7 +90,7 @@ public interface SqlUtilInterface {
      * @param className 类型名
      * @return 实体类
      */
-    Object selectData(String cmd , String className, List<String> parameters);
+    List<Object> selectData(String cmd , String className, List<String> parameters);
 
     /**
      * 更新数据库信息
@@ -117,7 +117,7 @@ public interface SqlUtilInterface {
      * @param cmdName 指令名
      * @return 实体类
      */
-    Object selectData(FileConfiguration file , String cmdName);
+    List<Object> selectData(FileConfiguration file , String cmdName);
 
     /**
      * 通过文件执行指令（自带参数）
@@ -127,7 +127,7 @@ public interface SqlUtilInterface {
      * @param parameters 参数列表
      * @return 实体类
      */
-    Object selectData(FileConfiguration file , String cmdName , String... parameters);
+    List<Object> selectData(FileConfiguration file , String cmdName , String... parameters);
 
     /**
      * 通过文件执行指令（自带参数）
@@ -137,7 +137,7 @@ public interface SqlUtilInterface {
      * @param parameters 参数列表
      * @return 实体类
      */
-    Object selectData(FileConfiguration file , String cmdName , List<String> parameters);
+    List<Object> selectData(FileConfiguration file , String cmdName , List<String> parameters);
 
     /**
      * 通过文件更新数据

@@ -1,8 +1,6 @@
 package com.bc.poolseat;
 
 import com.bc.poolseat.data.PluginPoolData;
-import com.bc.poolseat.domain.config.SqlConfig;
-import com.bc.poolseat.domain.operation.impl.SqlUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -48,13 +46,7 @@ public class PoolSeat extends JavaPlugin {
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
         if("poolseat".equalsIgnoreCase(cmd.getName())){
-            if(args.length == 1 && "test".equalsIgnoreCase(args[0])){
-                //String databaseName, String userName, String password, String ip, String port, int poolSize, String connectParameter
-                SqlConfig sqlConfig = new SqlConfig("testDB","root","1515206","localhost","3306",5,"useSSL=false&autoReconnect=true&useUnicode=true&characterEncoding=UTF-8&zeroDateTimeBehavior=convertToNull");
-                SqlUtil sqlUtil = new SqlUtil(this,sqlConfig);
-                String sqlCmd = "select * from test_data;";
-                System.out.println(sqlUtil.selectData(sqlCmd,"com.bc.poolseat.domain.test.TestSqlBean"));
-            } else if (args.length == 1 && "reload".equalsIgnoreCase(args[0])){
+            if (args.length == 1 && "reload".equalsIgnoreCase(args[0])){
 
                 logMessage("§a§l重载完成!");
             } else if (args.length == 1 && "info".equalsIgnoreCase(args[0])){
