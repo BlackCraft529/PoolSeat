@@ -52,15 +52,17 @@ public class SqlUtil implements SqlUtilInterface {
         for (String beanName : file.getKeys(false)){
             // (table字段 : bean字段)
             Map<String,String> resultMap = Collections.synchronizedMap(new HashMap<String, String>());
+            Map<String,String> parameterMap = Collections.synchronizedMap(new HashMap<String, String>());
             for (String line : file.getStringList(beanName+".reflectMap")){
                 String columnName = line.split("<->")[0].split(":")[1];
                 String javaBeanName = line.split("<->")[1].split(":")[1];
                 resultMap.put(columnName,javaBeanName);
+                parameterMap.put(javaBeanName,columnName);
             }
             String beanPath = file.getString(beanName+".path");
             String tableName = file.getString(beanName+".table");
             //String beanName , String beanPath , String tableName , Map<String,String> resultMap
-            ReflectMap reflectMap = new ReflectMap(beanName, beanPath, tableName, resultMap);
+            ReflectMap reflectMap = new ReflectMap(beanName, beanPath, tableName, resultMap, parameterMap);
             this.reflectMap.put(beanName , reflectMap);
         }
         return reflectMap.size();
@@ -102,6 +104,36 @@ public class SqlUtil implements SqlUtilInterface {
     }
 
     /**
+     * 使用javaBean更新数据库信息
+     *
+     * @param javaBean 实体
+     * @param file 文件
+     * @param cmdGroup 指令组
+     * @return 影响条数
+     */
+    private int updateDataToMySql(Object javaBean , FileConfiguration file, String cmdGroup){
+        Connection connection = getConnection();
+        if(connection == null){
+            return 0;
+        }
+        PreparedStatement preparedStatement = null;
+        try {
+            int influenceLines = 0;
+            preparedStatement = ReflectUtil.getUpdatePrepareStatement(cmdGroup,javaBean,file,connection,this.getReflectMap());
+            if(preparedStatement != null){
+                influenceLines = preparedStatement.executeUpdate();
+            }
+            close(preparedStatement,connection);
+            return influenceLines;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return 0;
+        } finally {
+            close(preparedStatement,connection);
+        }
+    }
+
+    /**
      * 更新数据
      *
      * @param cmd 指令
@@ -118,9 +150,9 @@ public class SqlUtil implements SqlUtilInterface {
             for (int i =1 ;i<parameters.size()+1;i++){
                 preparedStatement.setObject(i,parameters.get(i-1));
             }
-            int influenceLine = preparedStatement.executeUpdate();
+            int influenceLines = preparedStatement.executeUpdate();
             close(preparedStatement,connection);
-            return influenceLine;
+            return influenceLines;
         } catch (SQLException e) {
             e.printStackTrace();
             return 0;
@@ -233,15 +265,14 @@ public class SqlUtil implements SqlUtilInterface {
     /**
      * 使用实体类进行数据更新
      *
-     * @param pluginName 插件名称
+     * @param file 文件
      * @param javaBean   实体类
-     * @param primaryKey 主键名称
+     * @param cmdGroup 指令组
      * @return 影响条数
      */
     @Override
-    public int updateDataFromBean(String pluginName, Object javaBean, String primaryKey) {
-        //do something
-        return 0;
+    public int updateDataFromBean(FileConfiguration file, Object javaBean, String cmdGroup) {
+        return updateDataToMySql(javaBean,file,cmdGroup);
     }
 
     /**

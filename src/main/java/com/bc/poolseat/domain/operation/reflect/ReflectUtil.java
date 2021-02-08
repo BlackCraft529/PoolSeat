@@ -2,16 +2,67 @@ package com.bc.poolseat.domain.operation.reflect;
 
 import com.bc.poolseat.PoolSeat;
 import com.bc.poolseat.domain.result.ReflectMap;
+import org.bukkit.configuration.file.FileConfiguration;
 import java.lang.reflect.Field;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 /**
  * @author Luckily_Baby
  * @date 2021/2/7 16:02
  */
 public class ReflectUtil {
+
+    /**
+     * 根据实体更新数据库信息
+     *
+     * @param cmdGroup 指令组
+     * @param object 数据
+     * @param file 文件
+     * @param connection 连接
+     * @param reflectMap 映射表
+     * @return 处理语句
+     */
+    public static PreparedStatement getUpdatePrepareStatement(String cmdGroup, Object object, FileConfiguration file, Connection connection, Map<String, ReflectMap> reflectMap){
+        try {
+            String className = object.getClass().getName().split("\\.")[object.getClass().getName().split("\\.").length-1];
+            String cmd = file.getString(cmdGroup+".cmd");
+            Class objectClass = object.getClass();
+            ReflectMap reflectMapGot = reflectMap.get(className);
+            for(Field field:objectClass.getDeclaredFields()) {
+                field.setAccessible(true);
+                try {
+                    String fieldName = field.getName();
+                    String columnFieldName = reflectMapGot.getParameterMap().get(fieldName);
+                    if(columnFieldName == null){
+                        continue;
+                    }
+                    String value = field.get(object).toString();
+                    if(value == null){
+                        continue;
+                    }
+                    if(!isInteger(value)){
+                        value="\'"+value+"\'";
+                    }
+                    if(cmd.contains("<"+columnFieldName+">")){
+                        cmd = cmd.replaceAll("<"+columnFieldName+">" , value);
+                    }
+                } catch (IllegalAccessException e) {
+                    e.printStackTrace();
+                }
+            }
+            return connection.prepareStatement(cmd);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
     /**
      * 获取实体类
      *
@@ -58,5 +109,10 @@ public class ReflectUtil {
             e.printStackTrace();
         }
         return null;
+    }
+
+    private static boolean isInteger(String str) {
+        Pattern pattern = Pattern.compile("^[-\\+]?[\\d]*$");
+        return pattern.matcher(str).matches();
     }
 }
