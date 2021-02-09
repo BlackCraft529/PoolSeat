@@ -2,6 +2,10 @@
     基于HikariCP的一款连接池插件。
     较大程度上方便了开发者进行相关的数据库操作。
 
+* 所包含的方法:<br>
+    * [数据库相关](https://github.com/BlackCraft529/PoolSeat/blob/master/src/main/java/com/bc/poolseat/domain/operation/SqlUtilInterface.java)
+    * [Json相关](https://github.com/BlackCraft529/PoolSeat/blob/master/src/main/java/com/bc/poolseat/domain/operation/JsonUtilInterface.java)
+
 ### 支持功能<br>
 1.使用Java Bean更新相关数据库信息;<br>
 2.可通过yml配置将数据库信息封装成对象并返回;<br>
@@ -13,9 +17,6 @@
 8.序列化与反序列化对象为Json数据并更新;<br>
 9.使用JavaBean来更新Json数据至数据库;<br>
 10.实现完全通过配置进行数据库操作(推荐使用);<br>
-* 所包含的方法:
-    * [数据库相关](https://github.com/BlackCraft529/PoolSeat/blob/master/src/main/java/com/bc/poolseat/domain/operation/SqlUtilInterface.java)
-    * [Json相关](https://github.com/BlackCraft529/PoolSeat/blob/master/src/main/java/com/bc/poolseat/domain/operation/JsonUtilInterface.java)
 
 ### 相关配置信息<br>
 * 当使用该插件作为前置时,请在plugin.yml中添加依赖: "depend: [PoolSeat]"<br>
