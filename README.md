@@ -9,6 +9,9 @@
 4.使用SqlUtil工具对象,相关查询、修改、插入等操作仅需一行代码;<br>
 5.支持自动读取数据库信息;<br>
 6.连接池信息查询等;<br>
+7.Json数据存取,String数据存取;<br>
+8.序列化与反序列化对象为Json数据并更新;<br>
+9.使用JavaBean来更新Json数据至数据库;<br>
 
 ### 相关配置信息<br>
 * 当使用该插件作为前置时,请在plugin.yml中添加依赖: "depend: [PoolSeat]"<br>
@@ -54,9 +57,13 @@
   >>parameters:<br>
   >>>\- '参数,对齐语句中的?号,此处对应uuid后的?号'<br>
   * 如果想使用JavaBean更新数据库:<br>
+  * 注意:如果你希望将JavaBean转换为指定方法,请在语句中使用\<#object_json_String#>来替换将要被写入的json数据<br>
+  * 例如:update player_data set json_data = \<#object_json_String#> where uuid = \<uuid>;<br>
+  * 则是将您在代码中带入的Object转换为Json数据后存入与Object中对应的uuid字段的记录中;<br>
+  * 同时: 您在更新语句中的所有bean字段变量均使用数据库中所对应的字段进行填写!!即映射表中的column!!!<br>
   >updateGlobalPlayer:<br>
   >>#此处变量对应为 数据库字段名 ,非 类字段名<br>
-  >>cmd: "update player_data set season=<season> where uuid=<uuid>;"<br>
+  >>cmd: "update player_data set season=\<season> where uuid=\<uuid>;"<br>
     * 例如:<br>
     ```yaml
     selectAllGlobalPlayer:
