@@ -46,7 +46,7 @@
   * 方法文件,格式如下
   >操作名(自取,唯一):<br>
   >>cmd: "数据库语句,如select * from player where uuid=?;"<br>
-  >>return: 返回类型(暂无较大用处)<br>
+  >>return: 返回类型,类地址,String与Player类型特殊例外可直接写String和Player<br>
   >>parameters:<br>
   >>>\- '参数,对齐语句中的?号,此处对应uuid后的?号'<br>
   * 如果想要将某个字段转换成Bukkit的Player/OfflinePlayer:<br>
