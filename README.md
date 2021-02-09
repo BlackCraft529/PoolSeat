@@ -71,17 +71,17 @@
     selectPlayer:
       #指令集
       cmd: "select * from player_data;"
-      #字段名
+      #字段名 (该项仅查询Player与String,即指定相关字段会用到,如果是自动封装为Object,则无需填写)
       column: "uuid"
       #类型： UUID / NAME
       type: UUID
-      #参数集
-      parameters:
-        - ''
+      #参数集 (部分方法可以使用JavaBean进行更新,而无需填写parameters参数,同样的,参数对应cmd中的?号)
+      parameters: []
       #该类型可直接写 Player（返回为：Player或OfflinePlayer）
       return: Player
     updateGlobalPlayer:
-      #此处变量使用 <数据库字段>
+      #此处变量使用 <数据库字段> 
+      #查询相关的方法仅需要写一条指令即可!
       cmd: "update player_data set season=<season> where uuid=<uuid>;"
     selectStringData:
       #指令集
