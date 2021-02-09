@@ -69,7 +69,7 @@
       return: com.bc.pokerankpro.rankbattle.domain.player.GlobalPlayer
     #查询玩家并封装
     selectPlayer:
-    #指令集
+      #指令集
       cmd: "select * from player_data;"
       #字段名
       column: "uuid"
@@ -83,6 +83,19 @@
     updateGlobalPlayer:
       #此处变量使用 <数据库字段>
       cmd: "update player_data set season=<season> where uuid=<uuid>;"
+    selectStringData:
+      #指令集
+      cmd: "select * from player_data;"
+      #字段名
+      column: "uuid"
+      parameters: []
+      #String类型可以为“String”或“java.lang.String”
+      return: "java.lang.String"
+    #使用yml更新json数据，会将整个javaBean转换为json数据，存入相应的字段中;
+    #想要使用当前带入的bean中的某个字段作为条件，变量使用 <数据库字段>;
+    updateJsonData:
+      #带入类的json变量为 <#object_json_String#>
+      cmd: "update player_data set json_data = <#object_json_String#> where uuid = <uuid>;"
     ```
   * 注意:如果你希望将JavaBean转换为指定方法,请在语句中使用\<#object_json_String#>来替换将要被写入的json数据<br>
   * 例如:update player_data set json_data = \<#object_json_String#> where uuid = \<uuid>;<br>
