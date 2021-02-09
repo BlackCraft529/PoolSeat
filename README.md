@@ -153,3 +153,6 @@ SqlUtil sqlUtil = new SqlUtil(sqlConfig);
   //待更新本部分教程代码
   ```
 * 其他: 更多功能教程待更新...<br>
+* 所包含的方法:
+    * [数据库相关](https://github.com/BlackCraft529/PoolSeat/blob/master/src/main/java/com/bc/poolseat/domain/operation/SqlUtilInterface.java)
+    * [Json相关](https://github.com/BlackCraft529/PoolSeat/blob/master/src/main/java/com/bc/poolseat/domain/operation/JsonUtilInterface.java)
