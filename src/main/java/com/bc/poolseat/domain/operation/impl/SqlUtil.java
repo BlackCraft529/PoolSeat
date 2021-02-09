@@ -1,8 +1,10 @@
 package com.bc.poolseat.domain.operation.impl;
 
+import com.alibaba.fastjson.JSONObject;
 import com.bc.poolseat.PoolSeat;
 import com.bc.poolseat.data.PluginPoolData;
 import com.bc.poolseat.domain.config.SqlConfig;
+import com.bc.poolseat.domain.operation.JsonUtilInterface;
 import com.bc.poolseat.domain.operation.SqlUtilInterface;
 import com.bc.poolseat.utils.reflect.ReflectUtil;
 import com.bc.poolseat.domain.pool.PoolContainer;
@@ -22,7 +24,7 @@ import java.util.*;
  * @date 2021/2/6 16:27
  */
 @Data
-public class SqlUtil implements SqlUtilInterface {
+public class SqlUtil implements JsonUtilInterface, SqlUtilInterface {
     /**
      * 类型名 : 映射表
      */
@@ -134,6 +136,38 @@ public class SqlUtil implements SqlUtilInterface {
     }
 
     /**
+     * 从数据库查询String数据
+     *
+     * @param cmd 指令
+     * @param parameters 参数
+     * @return string
+     */
+    private String selectDataToString(String cmd, List<String> parameters, String columnName){
+        Connection connection = getConnection();
+        if(connection == null){
+            return "";
+        }
+        PreparedStatement preparedStatement = null;
+        ResultSet resultSet = null;
+        try {
+            preparedStatement = connection.prepareStatement(cmd);
+            for (int i = 0 ; i < parameters.size() ; i++){
+                preparedStatement.setObject((i+1),parameters.get(i));
+            }
+            resultSet = preparedStatement.executeQuery();
+            String resultString = "";
+            while (resultSet.next()){
+                resultString = resultSet.getObject(columnName).toString();
+            }
+            close(resultSet,preparedStatement,connection);
+            return resultString;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return "";
+    }
+
+    /**
      * 更新数据
      *
      * @param cmd 指令
@@ -239,6 +273,50 @@ public class SqlUtil implements SqlUtilInterface {
     }
 
     /**
+     * 将string转换为json对象
+     *
+     * @param cmd 指令
+     * @param columnName 字段
+     * @param parameters 参数列表
+     * @param classPath 类路径
+     * @return 实体
+     */
+    private Object selectJsonDataToJavaBean(String cmd, String columnName, List<String> parameters, String classPath) throws ClassNotFoundException {
+        String sqlData = selectDataToString(cmd,parameters,columnName);
+        return jsonToObject(stringToJsonObject(sqlData) , classPath);
+    }
+
+    /**
+     * 使用实体类更新数据库json数据
+     *
+     * @param cmd 指令
+     * @param object 实体类
+     * @return 影响条数
+     */
+    private int updateJsonDataFromJavaBean(String cmd, Object object){
+        Connection connection = getConnection();
+        if(connection == null){
+            return 0;
+        }
+        PreparedStatement preparedStatement = null;
+        int influenceLines = 0;
+        try {
+            cmd = cmd.replaceAll("<#object_json_String#>",jsonObjectToString(objectToJson(object)));
+            preparedStatement = ReflectUtil.getUpdatePrepareStatement(object,cmd,connection,this.getReflectMap());
+            if(preparedStatement != null){
+                influenceLines = preparedStatement.executeUpdate();
+            }
+            close(preparedStatement,connection);
+            return influenceLines;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return 0;
+        } finally {
+            close(preparedStatement,connection);
+        }
+    }
+
+    /**
      * 从文件获取玩家
      *
      * @param file    文件
@@ -260,6 +338,153 @@ public class SqlUtil implements SqlUtilInterface {
         }else {
             return selectPlayerByName(cmd, columnName, parameterList);
         }
+    }
+
+    /**
+     * 使用实体类更新数据库json数据
+     *
+     * @param file     文件
+     * @param cmdGroup 指令组
+     * @param object   实体类
+     * @return 影响条数
+     */
+    @Override
+    public int updateJsonDataFromBean(FileConfiguration file, String cmdGroup, Object object) {
+        if(file.get(cmdGroup) == null){
+            PoolSeat.logMessage("§4路径地址错误!");
+            return 0;
+        }
+        String cmd = file.getString(cmdGroup+".cmd");
+        return updateJsonDataFromJavaBean(cmd,object);
+    }
+
+    /**
+     * 通过文件从数据库查询到json数据并转换为相应的实体类
+     * 自带参数
+     *
+     * @param file       文件
+     * @param cmdGroup   cmd指令组
+     * @param parameters 参数
+     * @return 对象
+     */
+    @Override
+    public Object selectJsonDataToBean(FileConfiguration file, String cmdGroup, List<String> parameters) {
+        if(file.get(cmdGroup) == null){
+            PoolSeat.logMessage("§4路径地址错误!");
+            return null;
+        }
+        String classPath = file.getString(cmdGroup+".return");
+        String column = file.getString(cmdGroup+".column");
+        String cmd = file.getString(cmdGroup+".cmd");
+        return selectJsonDataToBean(cmd,column,parameters,classPath);
+    }
+
+    /**
+     * 通过文件查询json数据
+     *
+     * @param file     文件
+     * @param cmdGroup cmd指令组
+     * @return 对象
+     */
+    @Override
+    public Object selectJsonDataToBean(FileConfiguration file, String cmdGroup) {
+        if(file.get(cmdGroup) == null){
+            PoolSeat.logMessage("§4路径地址错误!");
+            return null;
+        }
+        String classPath = file.getString(cmdGroup+".return");
+        String column = file.getString(cmdGroup+".column");
+        List<String> parameters = file.getStringList(cmdGroup+".parameters");
+        String cmd = file.getString(cmdGroup+".cmd");
+        return selectJsonDataToBean(cmd,column,parameters,classPath);
+    }
+
+    /**
+     * 通过指令查询
+     *
+     * @param cmd        指令
+     * @param columnName 列名
+     * @param parameters 参数
+     * @param classPath 类路径
+     * @return 对象
+     */
+    @Override
+    public Object selectJsonDataToBean(String cmd, String columnName, List<String> parameters, String classPath){
+        Object object;
+        try {
+            object = selectJsonDataToJavaBean(cmd,columnName,parameters,classPath);
+        } catch (ClassNotFoundException e) {
+            PoolSeat.logMessage("§4类路径错误或表名字段错误:");
+            e.printStackTrace();
+            return null;
+        }
+        return object;
+    }
+
+    /**
+     * 通过指令查询
+     *
+     * @param cmd        指令
+     * @param columnName 列名
+     * @param classPath 类路径
+     * @param parameters 参数
+     * @return 对象
+     */
+    @Override
+    public Object selectJsonDataToBean(String cmd, String columnName, String classPath, String... parameters) {
+        List<String> parameterList = Arrays.asList(parameters);
+        return selectJsonDataToBean(cmd,columnName,parameterList,classPath);
+    }
+
+    /**
+     * 使用文件查询数据
+     *
+     * @param cmd        指令
+     * @param columnName 字段名
+     * @param parameters 参数
+     * @return string数据
+     */
+    @Override
+    public String selectStringData(String cmd, String columnName, String... parameters) {
+        List<String> parameterList = Arrays.asList(parameters);
+        return selectStringData(cmd,columnName, parameterList);
+    }
+
+    /**
+     * 使用文件查询数据
+     *
+     * @param cmd        指令
+     * @param columnName 字段名
+     * @param parameters 参数
+     * @return string数据
+     */
+    @Override
+    public String selectStringData(String cmd, String columnName, List<String> parameters) {
+        return selectDataToString(cmd,parameters,columnName);
+    }
+
+    /**
+     * 使用文件查询数据
+     *
+     * @param file     文件
+     * @param cmdGroup 指令组
+     * @return string数据
+     */
+    @Override
+    public String selectStringData(FileConfiguration file, String cmdGroup) {
+        if(file.get(cmdGroup) == null){
+            PoolSeat.logMessage("§4路径地址错误!");
+            return null;
+        }
+        if(!"String".equalsIgnoreCase(file.getString(cmdGroup+".type"))
+            ||!"java.lang.String".equalsIgnoreCase(file.getString(cmdGroup+".type"))){
+            PoolSeat.logMessage("§4参数类型错误!");
+            return null;
+        }
+        String cmd = file.getString(cmdGroup+".cmd");
+        String column = file.getString(cmdGroup+".column");
+        List<String> parameters = file.getStringList(cmdGroup+".parameters");
+        return selectStringData(cmd, column, parameters);
     }
 
     /**
@@ -557,5 +782,52 @@ public class SqlUtil implements SqlUtilInterface {
         } catch (SQLException e) {
             e.printStackTrace();
         }
+    }
+
+
+
+    /**
+     * 将json转化为Object
+     *
+     * @param jsonStr json字符串
+     * @param classPath     参数
+     * @return 泛型
+     */
+    @Override
+    public Object jsonToObject(JSONObject jsonStr, String classPath) throws ClassNotFoundException {
+        return JSONObject.toJavaObject(jsonStr, Class.forName(classPath));
+    }
+
+    /**
+     * 实体类转换为json
+     *
+     * @param obj 实体
+     * @return json对象
+     */
+    @Override
+    public JSONObject objectToJson(Object obj) {
+        return (JSONObject) JSONObject.toJSON(obj);
+    }
+
+    /**
+     * json转string
+     *
+     * @param jsonObject json对象
+     * @return string
+     */
+    @Override
+    public String jsonObjectToString(JSONObject jsonObject) {
+        return jsonObject.toJSONString();
+    }
+
+    /**
+     * string转 json对象
+     *
+     * @param objectString string
+     * @return json对象
+     */
+    @Override
+    public JSONObject stringToJsonObject(String objectString) {
+        return JSONObject.parseObject(objectString);
     }
 }

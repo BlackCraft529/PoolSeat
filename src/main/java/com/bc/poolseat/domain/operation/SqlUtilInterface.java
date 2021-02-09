@@ -14,6 +14,88 @@ import java.util.List;
 public interface SqlUtilInterface {
 
     /**
+     * 使用实体类更新数据库json数据
+     *
+     * @param file 文件
+     * @param cmdGroup 指令组
+     * @param object 实体类
+     * @return 影响条数
+     */
+    int updateJsonDataFromBean(FileConfiguration file , String cmdGroup, Object object);
+
+    /**
+     * 通过文件从数据库查询到json数据并转换为相应的实体类
+     * 自带参数
+     *
+     * @param file 文件
+     * @param cmdGroup cmd指令组
+     * @param parameters 参数
+     * @return 对象
+     */
+    Object selectJsonDataToBean(FileConfiguration file , String cmdGroup, List<String> parameters);
+
+    /**
+     * 通过文件从数据库查询到json数据并转换为相应的实体类
+     *
+     * @param file 文件
+     * @param cmdGroup cmd指令组
+     * @return 对象
+     */
+    Object selectJsonDataToBean(FileConfiguration file , String cmdGroup);
+
+    /**
+     * 从数据库查询到json数据并转换为相应的实体类
+     *
+     * @param cmd 指令
+     * @param columnName 列名
+     * @param classPath 类路径
+     * @param parameters 参数
+     * @return 实体
+     * @throws ClassNotFoundException 路径错误
+     */
+    Object selectJsonDataToBean(String cmd ,String columnName,  List<String> parameters, String classPath) throws ClassNotFoundException;
+
+    /**
+     * 从数据库查询到json数据并转换为相应的实体类
+     *
+     * @param cmd 指令
+     * @param columnName 列名
+     * @param classPath 类路径
+     * @param parameters 参数
+     * @return 对象
+     */
+    Object selectJsonDataToBean(String cmd ,String columnName, String classPath,  String... parameters);
+
+    /**
+     * 使用文件查询数据
+     *
+     * @param cmd 指令
+     * @param columnName 字段名
+     * @param parameters 参数
+     * @return string数据
+     */
+    String selectStringData(String cmd ,String columnName,  String... parameters);
+
+    /**
+     * 使用文件查询数据
+     *
+     * @param cmd 指令
+     * @param columnName 字段名
+     * @param parameters 参数
+     * @return string数据
+     */
+    String selectStringData(String cmd ,String columnName, List<String> parameters);
+
+    /**
+     * 使用文件查询数据
+     *
+     * @param file 文件
+     * @param cmdGroup 指令组
+     * @return string数据
+     */
+    String selectStringData(FileConfiguration file , String cmdGroup);
+
+    /**
      * 使用实体类进行数据更新
      *
      * @param file 文件

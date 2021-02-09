@@ -21,6 +21,49 @@ public class ReflectUtil {
     /**
      * 根据实体更新数据库信息
      *
+     * @param object 数据
+     * @param cmd 指令
+     * @param connection 连接
+     * @param reflectMap 映射表
+     * @return 处理语句
+     */
+    public static PreparedStatement getUpdatePrepareStatement(Object object, String cmd, Connection connection, Map<String, ReflectMap> reflectMap){
+        try {
+            String className = object.getClass().getName().split("\\.")[object.getClass().getName().split("\\.").length-1];
+            Class objectClass = object.getClass();
+            ReflectMap reflectMapGot = reflectMap.get(className);
+            for(Field field:objectClass.getDeclaredFields()) {
+                field.setAccessible(true);
+                try {
+                    String fieldName = field.getName();
+                    String columnFieldName = reflectMapGot.getParameterMap().get(fieldName);
+                    if(columnFieldName == null){
+                        continue;
+                    }
+                    String value = field.get(object).toString();
+                    if(value == null){
+                        continue;
+                    }
+                    if(!isInteger(value)){
+                        value="\'"+value+"\'";
+                    }
+                    if(cmd.contains("<"+columnFieldName+">")){
+                        cmd = cmd.replaceAll("<"+columnFieldName+">" , value);
+                    }
+                } catch (IllegalAccessException e) {
+                    e.printStackTrace();
+                }
+            }
+            return connection.prepareStatement(cmd);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    /**
+     * 根据实体更新数据库信息
+     *
      * @param cmdGroup 指令组
      * @param object 数据
      * @param file 文件
