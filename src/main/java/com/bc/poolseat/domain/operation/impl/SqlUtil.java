@@ -301,7 +301,7 @@ public class SqlUtil implements JsonUtilInterface, SqlUtilInterface {
         PreparedStatement preparedStatement = null;
         int influenceLines = 0;
         try {
-            cmd = cmd.replaceAll("<#object_json_String#>",jsonObjectToString(objectToJson(object)));
+            cmd = cmd.replaceAll("<#object_json_String#>","\'"+jsonObjectToString(objectToJson(object))+"\'");
             preparedStatement = ReflectUtil.getUpdatePrepareStatement(object,cmd,connection,this.getReflectMap());
             if(preparedStatement != null){
                 influenceLines = preparedStatement.executeUpdate();
@@ -325,7 +325,7 @@ public class SqlUtil implements JsonUtilInterface, SqlUtilInterface {
      */
     @Override
     public Object selectPlayerFromYml(FileConfiguration file, String cmdName) {
-        if(file.get(cmdName) == null || "Player".equalsIgnoreCase(file.getString(cmdName+".return"))){
+        if(file.get(cmdName) == null || !"Player".equalsIgnoreCase(file.getString(cmdName+".return"))){
             PoolSeat.logMessage("§4路径地址错误或返回类型错误,该方法仅适用Player类型!");
             return null;
         }
@@ -338,6 +338,43 @@ public class SqlUtil implements JsonUtilInterface, SqlUtilInterface {
         }else {
             return selectPlayerByName(cmd, columnName, parameterList);
         }
+    }
+
+    /**
+     * 从文件获取玩家
+     *
+     * @param file 文件
+     * @param cmdName 指令集
+     * @param parameters 自带参数
+     * @return 玩家 Player | OfflinePlayer
+     */
+    @Override
+    public Object selectPlayerFromYml(FileConfiguration file, String cmdName , List<String> parameters) {
+        if(file.get(cmdName) == null || !"Player".equalsIgnoreCase(file.getString(cmdName+".return"))){
+            PoolSeat.logMessage("§4路径地址错误或返回类型错误,该方法仅适用Player类型!");
+            return null;
+        }
+        String type = file.getString(cmdName+".type");
+        String cmd = file.getString(cmdName+".cmd");
+        String columnName = file.getString(cmdName+".column");
+        if("uuid".equalsIgnoreCase(type)){
+            return selectPlayerByUuid(cmd, columnName, parameters);
+        }else {
+            return selectPlayerByName(cmd, columnName, parameters);
+        }
+    }
+
+    /**
+     * 从文件获取玩家
+     *
+     * @param file       文件
+     * @param cmdName    指令集
+     * @param parameters 自带参数
+     * @return 玩家 Player | OfflinePlayer
+     */
+    @Override
+    public Object selectPlayerFromYml(FileConfiguration file, String cmdName, String... parameters) {
+        return selectPlayerFromYml(file,cmdName,Arrays.asList(parameters));
     }
 
     /**
@@ -476,8 +513,8 @@ public class SqlUtil implements JsonUtilInterface, SqlUtilInterface {
             PoolSeat.logMessage("§4路径地址错误!");
             return null;
         }
-        if(!"String".equalsIgnoreCase(file.getString(cmdGroup+".type"))
-            ||!"java.lang.String".equalsIgnoreCase(file.getString(cmdGroup+".type"))){
+        if(!"String".equalsIgnoreCase(file.getString(cmdGroup+".return"))
+            && !"java_lang_String".equalsIgnoreCase(file.getString(cmdGroup+".return").replaceAll("\\.","_"))){
             PoolSeat.logMessage("§4参数类型错误!");
             return null;
         }
@@ -536,7 +573,7 @@ public class SqlUtil implements JsonUtilInterface, SqlUtilInterface {
      */
     @Override
     public Object selectPlayerByUuid(String cmd, String uuidColumnName , List<String> parameters) {
-        if("".equalsIgnoreCase(selectPlayerNameOrUUID(cmd,uuidColumnName,parameters))){
+        if(!"".equalsIgnoreCase(selectPlayerNameOrUUID(cmd,uuidColumnName,parameters))){
             UUID playerUUID = UUID.fromString(selectPlayerNameOrUUID(cmd,uuidColumnName,parameters));
             if(Bukkit.getPlayer(playerUUID) != null){
                 return Bukkit.getPlayer(playerUUID);
@@ -557,7 +594,7 @@ public class SqlUtil implements JsonUtilInterface, SqlUtilInterface {
      */
     @Override
     public Object selectPlayerByUuid(String cmd, String uuidColumnName , String... parameters) {
-        if("".equalsIgnoreCase(selectPlayerNameOrUUID(cmd,uuidColumnName,Arrays.asList(parameters)))){
+        if(!"".equalsIgnoreCase(selectPlayerNameOrUUID(cmd,uuidColumnName,Arrays.asList(parameters)))){
             UUID playerUUID = UUID.fromString(selectPlayerNameOrUUID(cmd,uuidColumnName,Arrays.asList(parameters)));
             if(Bukkit.getPlayer(playerUUID) != null){
                 return Bukkit.getPlayer(playerUUID);
@@ -784,6 +821,15 @@ public class SqlUtil implements JsonUtilInterface, SqlUtilInterface {
         }
     }
 
+    /**
+     * 关闭连接池
+     */
+    @Override
+    public void dispose() {
+        if(poolContainer!=null) {
+            poolContainer.close();
+        }
+    }
 
 
     /**
