@@ -67,6 +67,7 @@
   >>cmd: "update player_data set season=\<season> where uuid=\<uuid>;"<br>
     * 例如:<br>
     ```yaml
+    #具体需要哪些字段配置,看你调用的方法,以下配置仅供参考.
     selectAllGlobalPlayer:
       cmd: "select * from player_data;"
       parameters: []
@@ -74,18 +75,18 @@
     #查询玩家并封装
     selectPlayer:
       #指令集
-      cmd: "select * from player_data;"
-      #字段名 (该项仅查询Player与String,即指定相关字段会用到,如果是自动封装为Object,则无需填写)
+      cmd: "select * from player_data where id=?;"
+      #字段名
       column: "uuid"
       #类型： UUID / NAME
       type: UUID
-      #参数集 (部分方法可以使用JavaBean进行更新,而无需填写parameters参数,同样的,参数对应cmd中的?号)
-      parameters: []
+      #参数集
+      parameters:
+         - 'seeiil'
       #该类型可直接写 Player（返回为：Player或OfflinePlayer）
       return: Player
     updateGlobalPlayer:
-      #此处变量使用 <数据库字段> 
-      #查询相关的方法仅需要写一条指令即可!
+      #此处变量使用 <数据库字段>
       cmd: "update player_data set season=<season> where uuid=<uuid>;"
     selectStringData:
       #指令集
@@ -100,6 +101,16 @@
     updateJsonData:
       #带入类的json变量为 <#object_json_String#>
       cmd: "update player_data set json_data = <#object_json_String#> where uuid = <uuid>;"
+    #查询json数据并以实体返回
+    selectJsonGlobalPlayerData:
+      #指令集
+      cmd: "select * from player_data where uuid=?;"
+      #字段名
+      column: "json_data"
+      parameters:
+      - '6dcdb469-a14a-39cd-8e3d-76d0151164b6'
+      #String类型可以为“String”或“java.lang.String”
+      return: "com.bc.pokerankpro.rankbattle.domain.player.GlobalPlayer"
     ```
   * 注意:如果你希望将JavaBean转换为指定方法,请在语句中使用\<#object_json_String#>来替换将要被写入的json数据<br>
   * 例如:update player_data set json_data = \<#object_json_String#> where uuid = \<uuid>;<br>
