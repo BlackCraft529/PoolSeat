@@ -213,7 +213,7 @@ public class SqlUtil implements JsonUtilInterface, SqlUtilInterface {
         List<Map<String , Object>> resultList = new ArrayList<>();
         try {
             preparedStatement = connection.prepareStatement(cmd);
-            for (int i = 1; i<parameters.size(); i++){
+            for (int i = 1; i < parameters.size()+1; i++){
                 preparedStatement.setObject(i , parameters.get(i-1));
             }
             resultSet = preparedStatement.executeQuery();
