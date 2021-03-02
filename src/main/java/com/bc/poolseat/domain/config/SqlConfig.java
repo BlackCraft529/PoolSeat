@@ -41,10 +41,10 @@ public class SqlConfig extends HikariConfig implements Cloneable {
 
     @Override
     public String toString(){
-        return "用户名:"+ this.getUsername() +"\n"+
-                "密码:"+ this.getPassword() +"\n"+
-                "连接池大小:"+ this.getMaximumPoolSize() +"\n"+
-                "URL:"+ this.getJdbcUrl();
+        return "用户名: "+ this.getUsername() +" ;\n"+
+                "密码: "+ this.getPassword() +" ;\n"+
+                "连接池大小: "+ this.getMaximumPoolSize() +" ;\n"+
+                "URL: "+ this.getJdbcUrl()+" ;";
     }
 
     /**
