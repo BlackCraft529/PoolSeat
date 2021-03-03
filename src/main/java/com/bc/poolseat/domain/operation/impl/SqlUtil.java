@@ -99,7 +99,7 @@ public class SqlUtil implements JsonUtilInterface, SqlUtilInterface {
             if(poolContainer.getConnection() != null){
                 return poolContainer.getConnection();
             }
-        }catch (SQLException e) {
+        } catch (SQLException e) {
             e.printStackTrace();
         }
         return null;
@@ -163,8 +163,35 @@ public class SqlUtil implements JsonUtilInterface, SqlUtilInterface {
             return resultString;
         } catch (SQLException e) {
             e.printStackTrace();
+        } finally {
+            close(resultSet,preparedStatement,connection);
         }
         return "";
+    }
+
+    /**
+     * 执行数据库指令
+     *
+     * @param cmd 指令
+     * @return 影响条数
+     */
+    private int executeSqlCommand(String cmd){
+        Connection connection = getConnection();
+        if(connection == null){
+            return 0;
+        }
+        PreparedStatement preparedStatement = null;
+        try {
+            preparedStatement = connection.prepareStatement(cmd);
+            int influenceLine = preparedStatement.executeUpdate();
+            close(preparedStatement,connection);
+            return influenceLine;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            close(preparedStatement,connection);
+        }
+        return 0;
     }
 
     /**
@@ -375,6 +402,34 @@ public class SqlUtil implements JsonUtilInterface, SqlUtilInterface {
     @Override
     public Object selectPlayerFromYml(FileConfiguration file, String cmdName, String... parameters) {
         return selectPlayerFromYml(file,cmdName,Arrays.asList(parameters));
+    }
+
+    /**
+     * 执行yml文件命令组
+     *
+     * @param file     文件
+     * @param cmdGroup cmd组
+     * @return 影响条数
+     */
+    @Override
+    public int executeCommandFromYml(FileConfiguration file, String cmdGroup) {
+        if(file.get(cmdGroup) == null){
+            PoolSeat.logMessage("§4路径地址错误!");
+            return 0;
+        }
+        String cmd = file.getString(cmdGroup+".cmd");
+        return executeCommand(cmd);
+    }
+
+    /**
+     * 执行命令
+     *
+     * @param cmd 命令
+     * @return 影响条数
+     */
+    @Override
+    public int executeCommand(String cmd) {
+        return executeSqlCommand(cmd);
     }
 
     /**

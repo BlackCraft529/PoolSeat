@@ -14,6 +14,23 @@ import java.util.List;
 public interface SqlUtilInterface {
 
     /**
+     * 执行yml文件命令组
+     *
+     * @param file 文件
+     * @param cmdGroup cmd组
+     * @return 影响条数
+     */
+    int executeCommandFromYml(FileConfiguration file , String cmdGroup);
+
+    /**
+     * 执行命令
+     *
+     * @param cmd 命令
+     * @return 影响条数
+     */
+    int executeCommand(String cmd);
+
+    /**
      * 使用实体类更新数据库json数据
      *
      * @param file 文件
