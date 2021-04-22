@@ -3,11 +3,14 @@ package com.bc.poolseat.utils.reflect;
 import com.bc.poolseat.PoolSeat;
 import com.bc.poolseat.domain.result.ReflectMap;
 import org.bukkit.configuration.file.FileConfiguration;
+
+import javax.swing.*;
 import java.lang.reflect.Field;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
@@ -27,7 +30,7 @@ public class ReflectUtil {
      * @param reflectMap 映射表
      * @return 处理语句
      */
-    public static PreparedStatement getUpdatePrepareStatement(Object object, String cmd, Connection connection, Map<String, ReflectMap> reflectMap){
+    public static PreparedStatement getUpdatePrepareStatement(Object object, String cmd, Connection connection, Map<String, ReflectMap> reflectMap, PreparedStatement preparedStatement){
         try {
             String className = object.getClass().getName().split("\\.")[object.getClass().getName().split("\\.").length-1];
             Class objectClass = object.getClass();
@@ -54,7 +57,8 @@ public class ReflectUtil {
                     e.printStackTrace();
                 }
             }
-            return connection.prepareStatement(cmd);
+            preparedStatement = connection.prepareStatement(cmd);
+            return preparedStatement;
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -69,20 +73,27 @@ public class ReflectUtil {
      * @param file 文件
      * @param connection 连接
      * @param reflectMap 映射表
-     * @return 处理语句
      */
-    public static PreparedStatement getUpdatePrepareStatement(String cmdGroup, Object object, FileConfiguration file, Connection connection, Map<String, ReflectMap> reflectMap){
+    public static PreparedStatement getUpdatePrepareStatement(String cmdGroup, Object object, FileConfiguration file, Connection connection, Map<String, ReflectMap> reflectMap, PreparedStatement preparedStatement){
         try {
             String className = object.getClass().getName().split("\\.")[object.getClass().getName().split("\\.").length-1];
             String cmd = file.getString(cmdGroup+".cmd");
             Class objectClass = object.getClass();
             ReflectMap reflectMapGot = reflectMap.get(className);
+            List<Object> otherType = new ArrayList<>();
             for(Field field:objectClass.getDeclaredFields()) {
                 field.setAccessible(true);
                 try {
                     String fieldName = field.getName();
                     String columnFieldName = reflectMapGot.getParameterMap().get(fieldName);
                     if(columnFieldName == null){
+                        continue;
+                    }
+                    if (field.get(object) instanceof Date){
+                        otherType.add(field.get(object));
+                        if(cmd.contains("<"+columnFieldName+">")){
+                            cmd = cmd.replaceAll("<"+columnFieldName+">" , "?");
+                        }
                         continue;
                     }
                     String value = field.get(object).toString();
@@ -99,7 +110,12 @@ public class ReflectUtil {
                     e.printStackTrace();
                 }
             }
-            return connection.prepareStatement(cmd);
+            //其他类型的数据
+            preparedStatement = connection.prepareStatement(cmd);
+            for (int i=0; i< otherType.size(); i++){
+                preparedStatement.setDate((i+1), new java.sql.Date(((Date)otherType.get(i)).getTime()));
+            }
+            return preparedStatement;
         } catch (SQLException e) {
             e.printStackTrace();
         }

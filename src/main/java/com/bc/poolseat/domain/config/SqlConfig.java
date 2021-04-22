@@ -33,7 +33,7 @@ public class SqlConfig extends HikariConfig implements Cloneable {
         this.setPassword(password);
         this.setMaximumPoolSize(poolSize);
         this.setIdleTimeout(60000);
-        this.setConnectionTimeout(600000);
+        this.setConnectionTimeout(60000);
         this.setValidationTimeout(3000);
         this.setMaxLifetime(60000);
         this.setAutoCommit(true);

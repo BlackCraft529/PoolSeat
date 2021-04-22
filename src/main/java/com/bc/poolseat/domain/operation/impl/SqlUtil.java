@@ -15,6 +15,8 @@ import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.omg.Messaging.SYNC_WITH_TRANSPORT;
+
 import java.sql.*;
 import java.util.*;
 
@@ -96,8 +98,9 @@ public class SqlUtil implements JsonUtilInterface, SqlUtilInterface {
      */
     private Connection getConnection(){
         try {
-            if(poolContainer.getConnection() != null){
-                return poolContainer.getConnection();
+            Connection connection = poolContainer.getConnection();
+            if(connection != null){
+                return connection;
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -121,7 +124,7 @@ public class SqlUtil implements JsonUtilInterface, SqlUtilInterface {
         PreparedStatement preparedStatement = null;
         try {
             int influenceLines = 0;
-            preparedStatement = ReflectUtil.getUpdatePrepareStatement(cmdGroup,javaBean,file,connection,this.getReflectMap());
+            preparedStatement = ReflectUtil.getUpdatePrepareStatement(cmdGroup,javaBean,file,connection,this.getReflectMap(), null);
             if(preparedStatement != null){
                 influenceLines = preparedStatement.executeUpdate();
             }
@@ -329,7 +332,7 @@ public class SqlUtil implements JsonUtilInterface, SqlUtilInterface {
         int influenceLines = 0;
         try {
             cmd = cmd.replaceAll("<#object_json_String#>","\'"+jsonObjectToString(objectToJson(object))+"\'");
-            preparedStatement = ReflectUtil.getUpdatePrepareStatement(object,cmd,connection,this.getReflectMap());
+            preparedStatement = ReflectUtil.getUpdatePrepareStatement(object,cmd,connection,this.getReflectMap(), null);
             if(preparedStatement != null){
                 influenceLines = preparedStatement.executeUpdate();
             }
