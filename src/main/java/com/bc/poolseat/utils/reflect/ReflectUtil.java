@@ -96,24 +96,35 @@ public class ReflectUtil {
                         }
                         continue;
                     }
-                    String value = field.get(object).toString();
-                    if(value == null){
-                        continue;
+                    if (field.get(object) instanceof Boolean){
+                        int value = (Boolean)field.get(object)?1:0;
+                        if(cmd.contains("<"+columnFieldName+">")){
+                            cmd = cmd.replaceAll("<"+columnFieldName+">" , value+"");
+                        }
+                    }else {
+                        String value = field.get(object).toString();
+                        if (value == null) {
+                            continue;
+                        }
+                        if (!isInteger(value)) {
+                            value = "\'" + value + "\'";
+                        }
+                        if(cmd.contains("<"+columnFieldName+">")){
+                            cmd = cmd.replaceAll("<"+columnFieldName+">" , value);
+                        }
                     }
-                    if(!isInteger(value)){
-                        value="\'"+value+"\'";
-                    }
-                    if(cmd.contains("<"+columnFieldName+">")){
-                        cmd = cmd.replaceAll("<"+columnFieldName+">" , value);
-                    }
+
                 } catch (IllegalAccessException e) {
                     e.printStackTrace();
                 }
             }
             //其他类型的数据
             preparedStatement = connection.prepareStatement(cmd);
-            for (int i=0; i< otherType.size(); i++){
-                preparedStatement.setDate((i+1), new java.sql.Date(((Date)otherType.get(i)).getTime()));
+            int len = cmd.split("\\?").length -1;
+            if (len == otherType.size()) {
+                for (int i = 0; i < otherType.size(); i++) {
+                    preparedStatement.setDate((i + 1), new java.sql.Date(((Date) otherType.get(i)).getTime()));
+                }
             }
             return preparedStatement;
         } catch (SQLException e) {

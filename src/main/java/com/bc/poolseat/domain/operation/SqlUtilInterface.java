@@ -18,17 +18,19 @@ public interface SqlUtilInterface {
      *
      * @param file 文件
      * @param cmdGroup cmd组
+     * @param args 参数
      * @return 影响条数
      */
-    int executeCommandFromYml(FileConfiguration file , String cmdGroup);
+    int executeCommandFromYml(FileConfiguration file , String cmdGroup, String... args);
 
     /**
      * 执行命令
      *
      * @param cmd 命令
+     * @param args 参数
      * @return 影响条数
      */
-    int executeCommand(String cmd);
+    int executeCommand(String cmd, String... args);
 
     /**
      * 使用实体类更新数据库json数据

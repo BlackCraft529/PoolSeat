@@ -176,9 +176,10 @@ public class SqlUtil implements JsonUtilInterface, SqlUtilInterface {
      * 执行数据库指令
      *
      * @param cmd 指令
+     * @param args 参数
      * @return 影响条数
      */
-    private int executeSqlCommand(String cmd){
+    private int executeSqlCommand(String cmd, String... args){
         Connection connection = getConnection();
         if(connection == null){
             return 0;
@@ -186,6 +187,9 @@ public class SqlUtil implements JsonUtilInterface, SqlUtilInterface {
         PreparedStatement preparedStatement = null;
         try {
             preparedStatement = connection.prepareStatement(cmd);
+            for (int i=0; i<args.length; i++){
+                preparedStatement.setString((i+1),args[i]);
+            }
             int influenceLine = preparedStatement.executeUpdate();
             close(preparedStatement,connection);
             return influenceLine;
@@ -412,27 +416,29 @@ public class SqlUtil implements JsonUtilInterface, SqlUtilInterface {
      *
      * @param file     文件
      * @param cmdGroup cmd组
+     * @param args     参数
      * @return 影响条数
      */
     @Override
-    public int executeCommandFromYml(FileConfiguration file, String cmdGroup) {
+    public int executeCommandFromYml(FileConfiguration file, String cmdGroup, String... args) {
         if(file.get(cmdGroup) == null){
             PoolSeat.logMessage("§4路径地址错误!");
             return 0;
         }
         String cmd = file.getString(cmdGroup+".cmd");
-        return executeCommand(cmd);
+        return executeCommand(cmd, args);
     }
 
     /**
      * 执行命令
      *
      * @param cmd 命令
+     * @param args 参数
      * @return 影响条数
      */
     @Override
-    public int executeCommand(String cmd) {
-        return executeSqlCommand(cmd);
+    public int executeCommand(String cmd, String... args) {
+        return executeSqlCommand(cmd, args);
     }
 
     /**
