@@ -125,6 +125,7 @@ public class SqlUtil implements JsonUtilInterface, SqlUtilInterface {
         try {
             int influenceLines = 0;
             preparedStatement = ReflectUtil.getUpdatePrepareStatement(cmdGroup,javaBean,file,connection,this.getReflectMap(), null);
+//            System.out.println(preparedStatement.toString());
             if(preparedStatement != null){
                 influenceLines = preparedStatement.executeUpdate();
             }

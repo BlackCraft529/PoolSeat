@@ -80,7 +80,7 @@ public class ReflectUtil {
             String cmd = file.getString(cmdGroup+".cmd");
             Class objectClass = object.getClass();
             ReflectMap reflectMapGot = reflectMap.get(className);
-            List<Object> otherType = new ArrayList<>();
+            List<Date> dateTypeArr = new ArrayList<>();
             for(Field field:objectClass.getDeclaredFields()) {
                 field.setAccessible(true);
                 try {
@@ -90,7 +90,7 @@ public class ReflectUtil {
                         continue;
                     }
                     if (field.get(object) instanceof Date){
-                        otherType.add(field.get(object));
+                        dateTypeArr.add((Date) field.get(object));
                         if(cmd.contains("<"+columnFieldName+">")){
                             cmd = cmd.replaceAll("<"+columnFieldName+">" , "?");
                         }
@@ -106,11 +106,11 @@ public class ReflectUtil {
                         if (value == null) {
                             continue;
                         }
-                        if (!isInteger(value)) {
-                            value = "\'" + value + "\'";
+                        if (!isInteger(value) || (field.get(object) instanceof String)) {
+                            value = "'" + value + "'";
                         }
                         if(cmd.contains("<"+columnFieldName+">")){
-                            cmd = cmd.replaceAll("<"+columnFieldName+">" , value);
+                            cmd = cmd.replaceAll("<"+columnFieldName+">" , java.util.regex.Matcher.quoteReplacement(value));
                         }
                     }
 
@@ -121,9 +121,9 @@ public class ReflectUtil {
             //其他类型的数据
             preparedStatement = connection.prepareStatement(cmd);
             int len = cmd.split("\\?").length -1;
-            if (len == otherType.size()) {
-                for (int i = 0; i < otherType.size(); i++) {
-                    preparedStatement.setDate((i + 1), new java.sql.Date(((Date) otherType.get(i)).getTime()));
+            if (len == dateTypeArr.size()) {
+                for (int i = 0; i < dateTypeArr.size(); i++) {
+                    preparedStatement.setDate((i + 1), new java.sql.Date((dateTypeArr.get(i)).getTime()));
                 }
             }
             return preparedStatement;
@@ -168,8 +168,13 @@ public class ReflectUtil {
                     }
                     Field field = objectClass.getDeclaredField(beanFieldName);
                     field.setAccessible(true);
-                    //设置值
-                    field.set(object , map.get(key));
+                    if (map.get(key) instanceof java.sql.Date){
+                        Date date = new Date(((java.sql.Date)map.get(key)).getTime());
+                        field.set(object , date);
+                    }else {
+                        //设置值
+                        field.set(object, map.get(key));
+                    }
                 }
                 objectList.add(object);
             }

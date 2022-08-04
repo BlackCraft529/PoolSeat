@@ -1,0 +1,11 @@
+<component name="libraryTable">
+  <library name="spigot-1.12.2-R0.1-SNAPSHOT-b14091">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/../../MineCraft/测试端1.12/spigot-1.12.2-R0.1-SNAPSHOT-b1409.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://$PROJECT_DIR$/../../MineCraft/测试端1.12/spigot-1.12.2-R0.1-SNAPSHOT-b1409.jar!/" />
+    </SOURCES>
+  </library>
+</component>
