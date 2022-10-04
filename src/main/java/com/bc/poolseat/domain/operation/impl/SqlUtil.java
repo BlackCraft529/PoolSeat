@@ -15,7 +15,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.omg.Messaging.SYNC_WITH_TRANSPORT;
 
 import java.sql.*;
 import java.util.*;
@@ -146,7 +145,7 @@ public class SqlUtil implements JsonUtilInterface, SqlUtilInterface {
      * @param parameters 参数
      * @return string
      */
-    private String selectDataToString(String cmd, List<String> parameters, String columnName){
+    private String selectDataToString(String cmd, List<Object> parameters, String columnName){
         Connection connection = getConnection();
         if(connection == null){
             return "";
@@ -180,7 +179,7 @@ public class SqlUtil implements JsonUtilInterface, SqlUtilInterface {
      * @param args 参数
      * @return 影响条数
      */
-    private int executeSqlCommand(String cmd, String... args){
+    private int executeSqlCommand(String cmd, Object... args){
         Connection connection = getConnection();
         if(connection == null){
             return 0;
@@ -189,7 +188,7 @@ public class SqlUtil implements JsonUtilInterface, SqlUtilInterface {
         try {
             preparedStatement = connection.prepareStatement(cmd);
             for (int i=0; i<args.length; i++){
-                preparedStatement.setString((i+1),args[i]);
+                preparedStatement.setObject((i+1),args[i]);
             }
             int influenceLine = preparedStatement.executeUpdate();
             close(preparedStatement,connection);
@@ -208,7 +207,7 @@ public class SqlUtil implements JsonUtilInterface, SqlUtilInterface {
      * @param cmd 指令
      * @return 影响条数
      */
-    private int updateDataToMySql(String cmd , List<String> parameters){
+    private int updateDataToMySql(String cmd , List<Object> parameters){
         Connection connection = getConnection();
         if(connection == null){
             return 0;
@@ -237,7 +236,7 @@ public class SqlUtil implements JsonUtilInterface, SqlUtilInterface {
      * @param parameters 参数集
      * @return 结果集
      */
-    private List<Map<String , Object>> getResultList(String cmd, List<String> parameters){
+    private List<Map<String , Object>> getResultList(String cmd, List<Object> parameters){
         Connection connection = getConnection();
         if(connection == null){
             return null;
@@ -280,7 +279,7 @@ public class SqlUtil implements JsonUtilInterface, SqlUtilInterface {
      * @param parameters 参数集
      * @return 获取内容
      */
-    private String selectPlayerNameOrUUID(String cmd, String columnName ,List<String> parameters){
+    private String selectPlayerNameOrUUID(String cmd, String columnName ,List<Object> parameters){
         Connection connection = getConnection();
         if(connection == null){
             return "";
@@ -316,7 +315,7 @@ public class SqlUtil implements JsonUtilInterface, SqlUtilInterface {
      * @param classPath 类路径
      * @return 实体
      */
-    private Object selectJsonDataToJavaBean(String cmd, String columnName, List<String> parameters, String classPath) throws ClassNotFoundException {
+    private Object selectJsonDataToJavaBean(String cmd, String columnName, List<Object> parameters, String classPath) throws ClassNotFoundException {
         String sqlData = selectDataToString(cmd,parameters,columnName);
         return jsonToObject(stringToJsonObject(sqlData) , classPath);
     }
@@ -384,7 +383,7 @@ public class SqlUtil implements JsonUtilInterface, SqlUtilInterface {
      * @return 玩家 Player | OfflinePlayer
      */
     @Override
-    public Object selectPlayerFromYml(FileConfiguration file, String cmdName , List<String> parameters) {
+    public Object selectPlayerFromYml(FileConfiguration file, String cmdName , List<Object> parameters) {
         if(file.get(cmdName) == null || !"Player".equalsIgnoreCase(file.getString(cmdName+".return"))){
             PoolSeat.logMessage("§4路径地址错误或返回类型错误,该方法仅适用Player类型!");
             return null;
@@ -408,7 +407,7 @@ public class SqlUtil implements JsonUtilInterface, SqlUtilInterface {
      * @return 玩家 Player | OfflinePlayer
      */
     @Override
-    public Object selectPlayerFromYml(FileConfiguration file, String cmdName, String... parameters) {
+    public Object selectPlayerFromYml(FileConfiguration file, String cmdName, Object... parameters) {
         return selectPlayerFromYml(file,cmdName,Arrays.asList(parameters));
     }
 
@@ -421,7 +420,7 @@ public class SqlUtil implements JsonUtilInterface, SqlUtilInterface {
      * @return 影响条数
      */
     @Override
-    public int executeCommandFromYml(FileConfiguration file, String cmdGroup, String... args) {
+    public int executeCommandFromYml(FileConfiguration file, String cmdGroup, Object... args) {
         if(file.get(cmdGroup) == null){
             PoolSeat.logMessage("§4路径地址错误!");
             return 0;
@@ -438,7 +437,7 @@ public class SqlUtil implements JsonUtilInterface, SqlUtilInterface {
      * @return 影响条数
      */
     @Override
-    public int executeCommand(String cmd, String... args) {
+    public int executeCommand(String cmd, Object... args) {
         return executeSqlCommand(cmd, args);
     }
 
@@ -470,7 +469,7 @@ public class SqlUtil implements JsonUtilInterface, SqlUtilInterface {
      * @return 对象
      */
     @Override
-    public Object selectJsonDataToBean(FileConfiguration file, String cmdGroup, List<String> parameters) {
+    public Object selectJsonDataToBean(FileConfiguration file, String cmdGroup, List<Object> parameters) {
         if(file.get(cmdGroup) == null){
             PoolSeat.logMessage("§4路径地址错误!");
             return null;
@@ -496,7 +495,7 @@ public class SqlUtil implements JsonUtilInterface, SqlUtilInterface {
         }
         String classPath = file.getString(cmdGroup+".return");
         String column = file.getString(cmdGroup+".column");
-        List<String> parameters = file.getStringList(cmdGroup+".parameters");
+        List<Object> parameters = new ArrayList<Object>(file.getStringList(cmdGroup+".parameters"));
         String cmd = file.getString(cmdGroup+".cmd");
         return selectJsonDataToBean(cmd,column,parameters,classPath);
     }
@@ -511,7 +510,7 @@ public class SqlUtil implements JsonUtilInterface, SqlUtilInterface {
      * @return 对象
      */
     @Override
-    public Object selectJsonDataToBean(String cmd, String columnName, List<String> parameters, String classPath){
+    public Object selectJsonDataToBean(String cmd, String columnName, List<Object> parameters, String classPath){
         Object object;
         try {
             object = selectJsonDataToJavaBean(cmd,columnName,parameters,classPath);
@@ -533,8 +532,8 @@ public class SqlUtil implements JsonUtilInterface, SqlUtilInterface {
      * @return 对象
      */
     @Override
-    public Object selectJsonDataToBean(String cmd, String columnName, String classPath, String... parameters) {
-        List<String> parameterList = Arrays.asList(parameters);
+    public Object selectJsonDataToBean(String cmd, String columnName, String classPath, Object... parameters) {
+        List<Object> parameterList = Arrays.asList(parameters);
         return selectJsonDataToBean(cmd,columnName,parameterList,classPath);
     }
 
@@ -547,8 +546,8 @@ public class SqlUtil implements JsonUtilInterface, SqlUtilInterface {
      * @return string数据
      */
     @Override
-    public String selectStringData(String cmd, String columnName, String... parameters) {
-        List<String> parameterList = Arrays.asList(parameters);
+    public String selectStringData(String cmd, String columnName, Object... parameters) {
+        List<Object> parameterList = Arrays.asList(parameters);
         return selectStringData(cmd,columnName, parameterList);
     }
 
@@ -561,7 +560,7 @@ public class SqlUtil implements JsonUtilInterface, SqlUtilInterface {
      * @return string数据
      */
     @Override
-    public String selectStringData(String cmd, String columnName, List<String> parameters) {
+    public String selectStringData(String cmd, String columnName, List<Object> parameters) {
         return selectDataToString(cmd,parameters,columnName);
     }
 
@@ -611,7 +610,7 @@ public class SqlUtil implements JsonUtilInterface, SqlUtilInterface {
      * @return 玩家 Player | OfflinePlayer
      */
     @Override
-    public Player selectPlayerByName(String cmd, String nameColumnName , List<String> parameters) {
+    public Player selectPlayerByName(String cmd, String nameColumnName , List<Object> parameters) {
         return Bukkit.getPlayerExact(selectPlayerNameOrUUID(cmd,nameColumnName,parameters));
     }
 
@@ -624,8 +623,8 @@ public class SqlUtil implements JsonUtilInterface, SqlUtilInterface {
      * @return 玩家 Player | OfflinePlayer
      */
     @Override
-    public Player selectPlayerByName(String cmd, String nameColumnName , String... parameters) {
-        return Bukkit.getPlayerExact(selectPlayerNameOrUUID(cmd,nameColumnName,Arrays.asList(parameters)));
+    public Player selectPlayerByName(String cmd, String nameColumnName , Object... parameters) {
+        return Bukkit.getPlayerExact(selectPlayerNameOrUUID(cmd,nameColumnName, Arrays.asList(parameters)));
     }
 
     /**
@@ -637,7 +636,7 @@ public class SqlUtil implements JsonUtilInterface, SqlUtilInterface {
      * @return 玩家 Player | OfflinePlayer
      */
     @Override
-    public Object selectPlayerByUuid(String cmd, String uuidColumnName , List<String> parameters) {
+    public Object selectPlayerByUuid(String cmd, String uuidColumnName , List<Object> parameters) {
         if(!"".equalsIgnoreCase(selectPlayerNameOrUUID(cmd,uuidColumnName,parameters))){
             UUID playerUUID = UUID.fromString(selectPlayerNameOrUUID(cmd,uuidColumnName,parameters));
             if(Bukkit.getPlayer(playerUUID) != null){
@@ -658,9 +657,9 @@ public class SqlUtil implements JsonUtilInterface, SqlUtilInterface {
      * @return 玩家 Player | OfflinePlayer
      */
     @Override
-    public Object selectPlayerByUuid(String cmd, String uuidColumnName , String... parameters) {
-        if(!"".equalsIgnoreCase(selectPlayerNameOrUUID(cmd,uuidColumnName,Arrays.asList(parameters)))){
-            UUID playerUUID = UUID.fromString(selectPlayerNameOrUUID(cmd,uuidColumnName,Arrays.asList(parameters)));
+    public Object selectPlayerByUuid(String cmd, String uuidColumnName , Object... parameters) {
+        if(!"".equalsIgnoreCase(selectPlayerNameOrUUID(cmd,uuidColumnName, Arrays.asList(parameters)))){
+            UUID playerUUID = UUID.fromString(selectPlayerNameOrUUID(cmd,uuidColumnName, Arrays.asList(parameters)));
             if(Bukkit.getPlayer(playerUUID) != null){
                 return Bukkit.getPlayer(playerUUID);
             }else if (Bukkit.getOfflinePlayer(playerUUID) != null){
@@ -679,9 +678,9 @@ public class SqlUtil implements JsonUtilInterface, SqlUtilInterface {
      * @return 实体类
      */
     @Override
-    public List<Object> selectData(String cmd, String className, String... parameters) {
-        List<String> parameterList = Arrays.asList(parameters);
-        return ReflectUtil.getObjectByResultList(getResultList(cmd,parameterList),className,this.reflectMap);
+    public List<Object> selectData(String cmd, String className, Object... parameters) {
+        List<Object> parameterList = Arrays.asList(parameters);
+        return ReflectUtil.getObjectByResultList(getResultList(cmd, parameterList),className,this.reflectMap);
     }
 
     /**
@@ -693,7 +692,7 @@ public class SqlUtil implements JsonUtilInterface, SqlUtilInterface {
      * @return 实体类
      */
     @Override
-    public List<Object> selectData(String cmd, String className, List<String> parameters) {
+    public List<Object> selectData(String cmd, String className, List<Object> parameters) {
         return ReflectUtil.getObjectByResultList(getResultList(cmd,parameters),className,this.reflectMap);
     }
 
@@ -704,8 +703,8 @@ public class SqlUtil implements JsonUtilInterface, SqlUtilInterface {
      * @param parameters 参数列表
      */
     @Override
-    public int updateData(String cmd, String... parameters) {
-        List<String> parameterList = Arrays.asList(parameters);
+    public int updateData(String cmd, Object... parameters) {
+        List<Object> parameterList = Arrays.asList(parameters);
         return updateDataToMySql(cmd , parameterList);
     }
 
@@ -716,7 +715,7 @@ public class SqlUtil implements JsonUtilInterface, SqlUtilInterface {
      * @param parameters 参数列表
      */
     @Override
-    public int updateData(String cmd, List<String> parameters) {
+    public int updateData(String cmd, List<Object> parameters) {
         return updateDataToMySql(cmd , parameters);
     }
 
@@ -734,7 +733,7 @@ public class SqlUtil implements JsonUtilInterface, SqlUtilInterface {
             return null;
         }
         String cmd = file.getString(cmdName+".cmd");
-        List<String> parameters = file.getStringList(cmdName+".parameters");
+        List<Object> parameters = new ArrayList<Object>(file.getStringList(cmdName + ".parameters"));
         String className = file.getString(cmdName+".return");
         return ReflectUtil.getObjectByResultList(getResultList(cmd,parameters),className,this.reflectMap);
     }
@@ -748,13 +747,13 @@ public class SqlUtil implements JsonUtilInterface, SqlUtilInterface {
      * @return 实体类
      */
     @Override
-    public List<Object> selectData(FileConfiguration file, String cmdName, String... parameters) {
+    public List<Object> selectData(FileConfiguration file, String cmdName, Object... parameters) {
         if(file.get(cmdName) == null){
             PoolSeat.logMessage("§4路径地址错误!");
             return null;
         }
         String cmd = file.getString(cmdName+".cmd");
-        List<String> parameterList = Arrays.asList(parameters);
+        List<Object> parameterList = new ArrayList<Object>(Arrays.asList(parameters));
         String className = file.getString(cmdName+".return");
         return ReflectUtil.getObjectByResultList(getResultList(cmd,parameterList),className,this.reflectMap);
     }
@@ -768,7 +767,7 @@ public class SqlUtil implements JsonUtilInterface, SqlUtilInterface {
      * @return 实体类
      */
     @Override
-    public List<Object> selectData(FileConfiguration file, String cmdName, List<String> parameters) {
+    public List<Object> selectData(FileConfiguration file, String cmdName, List<Object> parameters) {
         if(file.get(cmdName) == null){
             PoolSeat.logMessage("§4路径地址错误!");
             return null;
@@ -791,7 +790,7 @@ public class SqlUtil implements JsonUtilInterface, SqlUtilInterface {
             return 0;
         }
         String cmd = file.getString(cmdName+".cmd");
-        List<String> parameters = file.getStringList(cmdName+".parameters");
+        List<Object> parameters = new ArrayList<Object>(file.getStringList(cmdName+".parameters"));
         return updateDataToMySql(cmd , parameters);
     }
 
@@ -804,13 +803,13 @@ public class SqlUtil implements JsonUtilInterface, SqlUtilInterface {
      * @return 实体类
      */
     @Override
-    public int updateData(FileConfiguration file, String cmdName, String... parameters) {
+    public int updateData(FileConfiguration file, String cmdName, Object... parameters) {
         if(file.get(cmdName) == null){
             PoolSeat.logMessage("§4路径地址错误!");
             return 0;
         }
         String cmd = file.getString(cmdName+".cmd");
-        List<String> parameterList = Arrays.asList(parameters);
+        List<Object> parameterList = Arrays.asList(parameters);
         return updateDataToMySql(cmd , parameterList);
     }
 
@@ -823,7 +822,7 @@ public class SqlUtil implements JsonUtilInterface, SqlUtilInterface {
      * @return 实体类
      */
     @Override
-    public int updateData(FileConfiguration file, String cmdName, List<String> parameters) {
+    public int updateData(FileConfiguration file, String cmdName, List<Object> parameters) {
         if(file.get(cmdName) == null){
             PoolSeat.logMessage("§4路径地址错误!");
             return 0;

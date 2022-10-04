@@ -21,7 +21,7 @@ public interface SqlUtilInterface {
      * @param args 参数
      * @return 影响条数
      */
-    int executeCommandFromYml(FileConfiguration file , String cmdGroup, String... args);
+    int executeCommandFromYml(FileConfiguration file , String cmdGroup, Object... args);
 
     /**
      * 执行命令
@@ -30,7 +30,7 @@ public interface SqlUtilInterface {
      * @param args 参数
      * @return 影响条数
      */
-    int executeCommand(String cmd, String... args);
+    int executeCommand(String cmd, Object... args);
 
     /**
      * 使用实体类更新数据库json数据
@@ -53,7 +53,7 @@ public interface SqlUtilInterface {
      * @return 对象
      * 测试完成
      */
-    Object selectJsonDataToBean(FileConfiguration file , String cmdGroup, List<String> parameters);
+    Object selectJsonDataToBean(FileConfiguration file , String cmdGroup, List<Object> parameters);
 
     /**
      * 通过文件从数据库查询到json数据并转换为相应的实体类
@@ -76,7 +76,7 @@ public interface SqlUtilInterface {
      * @throws ClassNotFoundException 路径错误
      * 测试完成
      */
-    Object selectJsonDataToBean(String cmd ,String columnName,  List<String> parameters, String classPath) throws ClassNotFoundException;
+    Object selectJsonDataToBean(String cmd ,String columnName,  List<Object> parameters, String classPath) throws ClassNotFoundException;
 
     /**
      * 从数据库查询到json数据并转换为相应的实体类
@@ -88,7 +88,7 @@ public interface SqlUtilInterface {
      * @return 对象
      * 测试完成
      */
-    Object selectJsonDataToBean(String cmd ,String columnName, String classPath,  String... parameters);
+    Object selectJsonDataToBean(String cmd ,String columnName, String classPath,  Object... parameters);
 
     /**
      * 使用文件查询数据
@@ -99,7 +99,7 @@ public interface SqlUtilInterface {
      * @return string数据
      * 测试完成
      */
-    String selectStringData(String cmd ,String columnName,  String... parameters);
+    String selectStringData(String cmd ,String columnName,  Object... parameters);
 
     /**
      * 使用文件查询数据
@@ -110,7 +110,7 @@ public interface SqlUtilInterface {
      * @return string数据
      * 测试完成
      */
-    String selectStringData(String cmd ,String columnName, List<String> parameters);
+    String selectStringData(String cmd ,String columnName, List<Object> parameters);
 
     /**
      * 使用文件查询数据
@@ -142,7 +142,7 @@ public interface SqlUtilInterface {
      * @return 玩家 Player | OfflinePlayer
      * 测试完成
      */
-    Player selectPlayerByName(String cmd, String nameColumnName , List<String> parameters);
+    Player selectPlayerByName(String cmd, String nameColumnName , List<Object> parameters);
 
     /**
      * 从数据库查询玩家数据 - uuid
@@ -153,7 +153,7 @@ public interface SqlUtilInterface {
      * @return 玩家 Player | OfflinePlayer
      * 测试完成
      */
-    Object selectPlayerByUuid(String cmd, String uuidColumnName , List<String> parameters);
+    Object selectPlayerByUuid(String cmd, String uuidColumnName , List<Object> parameters);
 
     /**
      * 从文件获取玩家
@@ -174,7 +174,7 @@ public interface SqlUtilInterface {
      * @return 玩家 Player | OfflinePlayer
      * 测试完成
      */
-    Object selectPlayerFromYml(FileConfiguration file, String cmdName , List<String> parameters);
+    Object selectPlayerFromYml(FileConfiguration file, String cmdName , List<Object> parameters);
 
     /**
      * 从文件获取玩家
@@ -185,7 +185,7 @@ public interface SqlUtilInterface {
      * @return 玩家 Player | OfflinePlayer
      * 测试完成
      */
-    Object selectPlayerFromYml(FileConfiguration file, String cmdName , String... parameters);
+    Object selectPlayerFromYml(FileConfiguration file, String cmdName , Object... parameters);
 
     /**
      * 从数据库查询玩家数据 - 名字
@@ -196,7 +196,7 @@ public interface SqlUtilInterface {
      * @return 玩家 Player | OfflinePlayer
      * 测试完成
      */
-    Object selectPlayerByName(String cmd , String nameColumnName , String... parameters);
+    Object selectPlayerByName(String cmd , String nameColumnName , Object... parameters);
 
     /**
      * 从数据库查询玩家数据 - uuid
@@ -207,7 +207,7 @@ public interface SqlUtilInterface {
      * @return 玩家 Player | OfflinePlayer
      * 测试完成
      */
-    Object selectPlayerByUuid(String cmd , String uuidColumnName , String... parameters);
+    Object selectPlayerByUuid(String cmd , String uuidColumnName , Object... parameters);
 
     /**
      * 查询数据并包装成类
@@ -218,7 +218,7 @@ public interface SqlUtilInterface {
      * @return 实体类
      * 测试完成
      */
-    List<Object> selectData(String cmd , String className , String... parameters );
+    List<Object> selectData(String cmd , String className , Object... parameters );
 
     /**
      * 查询数据并包装成类
@@ -229,7 +229,7 @@ public interface SqlUtilInterface {
      * @return 实体类
      * 测试完成
      */
-    List<Object> selectData(String cmd , String className, List<String> parameters);
+    List<Object> selectData(String cmd , String className, List<Object> parameters);
 
     /**
      * 更新数据库信息
@@ -239,7 +239,7 @@ public interface SqlUtilInterface {
      * @return 影响条数
      * 测试完成
      */
-    int updateData(String cmd , String... parameters);
+    int updateData(String cmd , Object... parameters);
 
     /**
      * 更新数据库信息
@@ -249,7 +249,7 @@ public interface SqlUtilInterface {
      * @return 影响条数
      * 测试完成
      */
-    int updateData(String cmd , List<String> parameters);
+    int updateData(String cmd , List<Object> parameters);
 
     /**
      * 通过文件执行指令
@@ -270,7 +270,7 @@ public interface SqlUtilInterface {
      * @return 实体类
      * 测试完成
      */
-    List<Object> selectData(FileConfiguration file , String cmdName , String... parameters);
+    List<Object> selectData(FileConfiguration file , String cmdName , Object... parameters);
 
     /**
      * 通过文件执行指令（自带参数）
@@ -281,7 +281,7 @@ public interface SqlUtilInterface {
      * @return 实体类
      * 测试完成
      */
-    List<Object> selectData(FileConfiguration file , String cmdName , List<String> parameters);
+    List<Object> selectData(FileConfiguration file , String cmdName , List<Object> parameters);
 
     /**
      * 通过文件更新数据
@@ -302,7 +302,7 @@ public interface SqlUtilInterface {
      * @return 影响条数
      * 测试完成
      */
-    int updateData(FileConfiguration file , String cmdName , String... parameters);
+    int updateData(FileConfiguration file , String cmdName , Object... parameters);
 
     /**
      * 通过文件更新数据（自带参数）
@@ -313,7 +313,7 @@ public interface SqlUtilInterface {
      * @return 影响条数
      * 测试完成
      */
-    int updateData(FileConfiguration file , String cmdName , List<String> parameters);
+    int updateData(FileConfiguration file , String cmdName , List<Object> parameters);
 
     /**
      * 释放资源
